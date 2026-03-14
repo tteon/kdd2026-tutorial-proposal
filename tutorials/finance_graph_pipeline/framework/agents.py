@@ -12,7 +12,6 @@ from .models import (
     GraphEdge,
     GraphNode,
     Question,
-    QuestionRoutingDecision,
 )
 
 
@@ -232,33 +231,6 @@ class EntityLinker:
         return self.alias_map.get(lowered, re.sub(r"[^a-z0-9]+", "_", lowered).strip("_"))
 
 
-class QuestionRouter:
-    profile_hints = {
-        "committee": "governance",
-        "board": "governance",
-        "net income": "financials",
-        "q4": "financials",
-        "dividend": "shareholder_return",
-        "shareholder": "shareholder_return",
-        "repurchase": "shareholder_return",
-    }
-
-    def route(self, question: Question) -> QuestionRoutingDecision:
-        lowered = question.question.lower()
-        selected_profile = question.target_profile
-        for token, profile in self.profile_hints.items():
-            if token in lowered:
-                selected_profile = profile
-                break
-
-        return QuestionRoutingDecision(
-            selected_profile=selected_profile,
-            query_template=question.query_template,
-            evidence_strategy="quality_weighted_graph",
-            rationale="Profile selected from question semantics and query template.",
-        )
-
-
 class EvidenceSelector:
     template_requirements = {
         "who-serves-on-committee": ("serves_on_committee",),
@@ -269,14 +241,13 @@ class EvidenceSelector:
     def select_edges(
         self,
         question: Question,
-        routing: QuestionRoutingDecision,
         edges: dict[str, GraphEdge],
     ) -> list[GraphEdge]:
-        required = self.template_requirements.get(routing.query_template, ())
+        required = self.template_requirements.get(question.query_template, ())
         selected = [
             edge
             for edge in edges.values()
-            if edge.profile == routing.selected_profile and edge.relation_type in required
+            if edge.profile == question.target_profile and edge.relation_type in required
         ]
         return sorted(selected, key=lambda edge: edge.confidence, reverse=True)
 

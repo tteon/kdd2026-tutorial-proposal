@@ -4,9 +4,30 @@ This repository is a companion repository for a proposed KDD 2026 lecture-style 
 ontology-grounded graph construction and quality-aware generation for domain-specific LLM systems.
 
 The tutorial is motivated by a practical and research gap: many graph-grounded LLM systems discuss
-retrieval and generation, but far fewer tutorials explain how ontology choices, extraction quality,
-entity linking, graph quality diagnostics, and query-aware evidence selection interact in realistic
-domain settings such as finance.
+retrieval and generation, but far fewer explain how ontology choices, extraction quality, entity
+linking, graph quality, and downstream answer quality interact in realistic domain settings such as
+finance.
+
+## Minimal Core Claim
+
+The tutorial focuses on one minimal claim:
+
+**Downstream answer quality in domain-specific LLM systems depends on whether the system constructs
+query-supporting graphs with sufficient ontology alignment, extraction quality, and graph quality.**
+
+To keep the claim testable, the companion implementation keeps only the minimum pipeline needed to
+support that argument:
+
+1. Profile selection
+2. Ontology-constrained extraction
+3. Entity linking
+4. Graph construction
+5. Graph quality analysis
+6. Quality-aware evidence selection
+7. Answer generation
+
+We intentionally do **not** make question routing, multi-agent orchestration, UI, or deployment a
+core part of the tutorial argument.
 
 ## Proposed Tutorial Focus
 
@@ -21,7 +42,21 @@ We use finance as a concrete case study and focus on:
 3. Entity and relation extraction under ontology constraints
 4. Entity normalization and graph materialization
 5. Graph quality diagnostics
-6. Query-aware evidence selection for answer generation
+6. Quality-aware evidence selection for answer generation
+
+## What Must Be Shown
+
+The tutorial is organized around four measurable quantities:
+
+| Quantity | Why it is needed |
+|---|---|
+| Profile Selection Accuracy | Shows whether ontology/profile routing is correct |
+| Ontology-Constrained Extraction F1 | Shows whether the selected ontology improves structured extraction |
+| Query-Support Path Coverage | Shows whether the graph actually contains answer-supporting paths |
+| Answer Quality Delta | Shows whether graph quality transfers to downstream answer quality |
+
+These four quantities are enough to support the end-to-end argument without introducing unnecessary
+system complexity.
 
 ## Intended Audience
 
@@ -70,21 +105,20 @@ By the end of the tutorial, participants should be able to:
 - Ontology-based information extraction and graph-grounded generation
 - Domain-specific constraints in finance and other high-stakes settings
 
-### Part 3. Pipeline Design
+### Part 3. Minimal Pipeline Design
 
 - Context ingestion
 - FIBO profile selection
 - Ontology-constrained extraction
 - Entity linking and graph materialization
-- Quality metadata propagation
+- Minimal quality metadata propagation
 
 ### Part 4. Evaluation and Failure Analysis
 
-- Ontology quality
-- Extraction quality
-- Graph quality
-- Generation quality
-- Ground-truth design and ablation settings
+- Profile selection accuracy
+- Ontology-constrained extraction quality
+- Graph quality and query-support paths
+- Answer quality under baseline and ablation settings
 
 ### Part 5. Finance Case Study
 
@@ -112,4 +146,4 @@ python3 tutorials/finance_graph_pipeline/framework/demo.py
 
 - The runnable code is a companion scaffold, not the center of the lecture tutorial.
 - The current implementation is heuristic-driven so the full workflow can be inspected without external model dependencies.
-- The code is structured so actual LLM agents, ontology resolution, graph databases, and richer quality metrics can be swapped in later.
+- The implementation deliberately excludes non-essential components so the tutorial can focus on the minimal causal chain from ontology choice to answer quality.

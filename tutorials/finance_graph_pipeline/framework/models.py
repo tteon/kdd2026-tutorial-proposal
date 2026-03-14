@@ -93,20 +93,12 @@ class QuerySupportRecord:
 
 
 @dataclass
-class QuestionRoutingDecision:
-    selected_profile: str
-    query_template: str
-    evidence_strategy: str
-    rationale: str
-
-
-@dataclass
 class AnswerResult:
     question_id: str
     answer: str
     confidence: float
+    profile_used: str
     selected_edge_ids: list[str]
-    routing: QuestionRoutingDecision
     quality_notes: list[str]
 
 

@@ -9,7 +9,6 @@ from .agents import (
     EvidenceSelector,
     ExtractionAgent,
     FiboProfileAgent,
-    QuestionRouter,
 )
 from .models import AnswerResult, Document, GraphState, Question
 from .quality import GraphQualityAnalyzer
@@ -21,7 +20,6 @@ class FinanceTutorialPipeline:
         self.extraction_agent = ExtractionAgent()
         self.linker = EntityLinker()
         self.quality_analyzer = GraphQualityAnalyzer()
-        self.router = QuestionRouter()
         self.selector = EvidenceSelector()
         self.answer_generator = AnswerGenerator()
         self.state = GraphState()
@@ -64,9 +62,8 @@ class FinanceTutorialPipeline:
         return self.state
 
     def answer_question(self, question: Question) -> AnswerResult:
-        routing = self.router.route(question)
         query_support = self.state.query_support.get(question.question_id)
-        selected_edges = self.selector.select_edges(question, routing, self.state.edges)
+        selected_edges = self.selector.select_edges(question, self.state.edges)
 
         quality_notes: list[str] = []
         if query_support and not query_support.answerable:
@@ -85,8 +82,8 @@ class FinanceTutorialPipeline:
             question_id=question.question_id,
             answer=answer,
             confidence=round(confidence, 3),
+            profile_used=question.target_profile,
             selected_edge_ids=[edge.edge_id for edge in selected_edges],
-            routing=routing,
             quality_notes=quality_notes,
         )
 
