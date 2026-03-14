@@ -109,6 +109,34 @@ Do not build a full combinatorial grid over all stages.
 
 The evaluation should be hierarchical and interpretable, not exhaustive.
 
+## Evaluation Fairness And Sampling
+
+The source dataset may be imbalanced across categories. Do **not** use raw category frequency as the evaluation design.
+
+For tutorial experiments, evaluation must use a **category-balanced slice** across:
+
+- Governance
+- Financials
+- Shareholder Return
+
+Rules:
+
+- sample the same number of documents or chunks per category for the main evaluation
+- sample the same number of questions per category for the main evaluation
+- run all main baselines on the same balanced slice
+- report category-level results first
+- report macro averages across categories as the primary aggregate
+- report micro averages only as secondary context
+
+If runtime is high, use staged evaluation:
+
+1. a small pilot slice to verify the pipeline end-to-end
+2. a balanced main evaluation slice for all reported tutorial results
+
+Do not claim cross-category comparisons from an unbalanced sample.
+
+The goal is controlled causal comparison, not full-distribution estimation.
+
 ## Expected Artifacts
 
 The implementation should produce outputs that let us inspect:
@@ -120,6 +148,7 @@ The implementation should produce outputs that let us inspect:
 - query-support path status
 - answers under each baseline setting
 - comparison tables for the four target metrics
+- category-wise summaries and macro-average summaries for the balanced evaluation slice
 
 ## Success Criteria
 
