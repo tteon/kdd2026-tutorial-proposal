@@ -81,6 +81,75 @@ The implementation must make the following four quantities measurable:
 
 These are the only primary metrics that matter for the tutorial claim.
 
+## Current Bottlenecks To Address Next
+
+Current experimental results suggest that graph structure improvements are not automatically transferring to final answer quality.
+
+The next implementation work should address these bottlenecks in this priority order:
+
+1. redefine `query_support_path_coverage` using question-intent-specific path requirements
+2. make graph answers consume selected triples directly, not only graph-biased sentence reranking
+3. replace coarse induced extraction gold with a small manual gold subset before attempting broader evaluator redesign
+
+Do not try to solve all evaluation weaknesses at once. Fix the measurement and evidence-consumption path first.
+
+## Query-Support Coverage Redefinition
+
+Do **not** define coverage only as the presence of profile-level default relation types.
+
+Coverage must move toward a question-intent-specific definition:
+
+- `intent_id`
+- `required_relations`
+- `required_entity_types`
+- `focus_slots`
+
+Coverage should mean:
+
+- whether the graph contains the subgraph required by the question intent
+- whether the required slots or paths for that intent are populated
+
+Start with a lightweight approach:
+
+- use a small curated intent set
+- prefer rule-based or lightly prompted intent mapping
+- do not build a large intent-classification subsystem
+
+## Graph Answering Requirement
+
+Graph-based answering must not treat graph edges only as keyword hints for sentence reranking.
+
+The preferred direction is:
+
+- convert selected edges into a compact evidence bundle
+- include canonical node names, relation types, provenance snippets, and confidence
+- generate answers from that evidence bundle
+- use reference text only as secondary support
+
+Minimal acceptable behavior:
+
+- if required slots are present, answer from the structured graph evidence
+- if some required slots are missing, answer conservatively and state what is grounded vs missing
+
+Do not build a large agentic answer synthesis system. Keep this step simple and inspectable.
+
+## Extraction Evaluation Guidance
+
+The current induced extraction gold may undercount ontology-friendly or more specific extractions.
+
+Before implementing a broad canonicalized matching system, prefer a **small manual gold subset**:
+
+- 10-15 examples per category
+- 30-45 examples total
+- gold profile
+- gold triples
+- required answer slots
+- preferred answer evidence
+
+This subset should be used to validate whether ontology-constrained extraction is genuinely worse, or whether the current evaluator proxy is too coarse.
+
+Do not invest first in a large normalization engine unless the small manual gold subset shows it is necessary.
+
 ## Minimal Metadata Only
 
 Preserve only metadata needed to support the four target measurements.
@@ -173,7 +242,10 @@ The implementation should make it possible to explain failure in terms of:
 - schema violations
 - disconnected graph structure
 - missing query-support paths
+- coarse query-intent coverage definitions
 - evidence-selection bottlenecks
+- answer-synthesis bottlenecks
+- evaluator proxy limitations
 
 Do not optimize only for higher final scores. Optimize for interpretability of the pipeline.
 
