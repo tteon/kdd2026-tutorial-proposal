@@ -1,0 +1,42 @@
+{
+  "documents": [
+    {
+      "doc_id": "gov-001",
+      "section_type": "Governance",
+      "text": "Jane Doe serves as Chief Executive Officer and Chair of the Board of Northwind Bank. The audit committee includes John Smith and Mira Patel."
+    },
+    {
+      "doc_id": "fin-001",
+      "section_type": "Financials",
+      "text": "Northwind Bank reported net income of USD 2.4 billion for Q4 2025, compared with USD 2.1 billion in Q4 2024. Consumer Banking contributed USD 900 million."
+    },
+    {
+      "doc_id": "shr-001",
+      "section_type": "Shareholder Return",
+      "text": "The board approved a USD 5 billion share repurchase program and declared a quarterly cash dividend of USD 0.42 per common share."
+    }
+  ],
+  "questions": [
+    {
+      "question_id": "q-gov-1",
+      "question": "Who serves on the audit committee?",
+      "query_template": "who-serves-on-committee",
+      "target_profile": "governance",
+      "ground_truth_answer": "John Smith and Mira Patel serve on the audit committee."
+    },
+    {
+      "question_id": "q-fin-1",
+      "question": "What net income did Northwind Bank report for Q4 2025?",
+      "query_template": "metric-for-period",
+      "target_profile": "financials",
+      "ground_truth_answer": "Northwind Bank reported USD 2.4 billion of net income for Q4 2025."
+    },
+    {
+      "question_id": "q-shr-1",
+      "question": "How is the company returning capital to shareholders?",
+      "query_template": "shareholder-return-policy",
+      "target_profile": "shareholder_return",
+      "ground_truth_answer": "The company is returning capital through a USD 5 billion share repurchase program and a USD 0.42 quarterly cash dividend."
+    }
+  ]
+}
