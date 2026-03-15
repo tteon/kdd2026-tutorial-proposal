@@ -1,0 +1,8 @@
+/.env
+/data/
+/exports/
+/proposal/legacy/
+/proposal/README.md
+/docs/graph_pipeline_error_analysis_*.md
+__pycache__/
+*.py[cod]

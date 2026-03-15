@@ -47,7 +47,7 @@ class FinanceTutorialPipeline:
 
     def analyze_quality(self, questions: list[Question]) -> GraphState:
         self.state.quality_issues = self.quality_analyzer.analyze_global(self.state.nodes, self.state.edges)
-        self.state.query_support = self.quality_analyzer.analyze_query_support(questions, self.state.edges)
+        self.state.query_support = self.quality_analyzer.analyze_query_support(questions, self.state.edges, self.state.nodes)
 
         for issue in self.state.quality_issues:
             if issue.object_type == "node" and issue.object_id in self.state.nodes:

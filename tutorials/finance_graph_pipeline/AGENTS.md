@@ -166,17 +166,25 @@ Do not build a large metadata framework.
 
 ## Required Baselines
 
-Only compare the following evaluation settings:
+Keep baseline reporting split into two groups.
 
-1. `text_only_baseline`
-2. `graph_without_ontology_constraints`
-3. `graph_with_profile_selection_only`
-4. `graph_with_profile_plus_constrained_extraction_and_linking`
-5. `full_minimal_pipeline_with_quality_aware_evidence_selection`
+Auxiliary non-graph baselines:
+
+1. `question_only_baseline`
+2. `reference_only_baseline`
+
+Primary ontology-guided baselines:
+
+1. `graph_without_ontology_constraints`
+2. `graph_with_profile_selection_only`
+3. `graph_with_profile_plus_constrained_extraction_and_linking`
+4. `full_minimal_pipeline_with_quality_aware_evidence_selection`
 
 Do not build a full combinatorial grid over all stages.
 
-The evaluation should be hierarchical and interpretable, not exhaustive.
+The evaluation should remain hierarchical and interpretable.
+Main comparison tables should emphasize the ontology-guided baselines, while the
+two non-graph baselines remain auxiliary sanity checks.
 
 ## Evaluation Fairness And Sampling
 

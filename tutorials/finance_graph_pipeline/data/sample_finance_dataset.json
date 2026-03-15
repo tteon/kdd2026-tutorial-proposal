@@ -38,5 +38,61 @@
       "target_profile": "shareholder_return",
       "ground_truth_answer": "The company is returning capital through a USD 5 billion share repurchase program and a USD 0.42 quarterly cash dividend."
     }
-  ]
+  ],
+  "gold_profiles": {
+    "gov-001": "governance",
+    "fin-001": "financials",
+    "shr-001": "shareholder_return"
+  },
+  "gold_extractions": {
+    "gov-001": {
+      "entities": [
+        {"name": "Northwind Bank", "entity_type": "LegalEntity"},
+        {"name": "Board", "entity_type": "Board"},
+        {"name": "Audit Committee", "entity_type": "Committee"},
+        {"name": "Jane Doe", "entity_type": "Person"},
+        {"name": "John Smith", "entity_type": "Person"},
+        {"name": "Mira Patel", "entity_type": "Person"},
+        {"name": "Chief Executive Officer", "entity_type": "OfficerRole"}
+      ],
+      "relations": [
+        {"source_name": "Jane Doe", "relation_type": "holds_role", "target_name": "Chief Executive Officer"},
+        {"source_name": "Jane Doe", "relation_type": "chairs", "target_name": "Board"},
+        {"source_name": "John Smith", "relation_type": "serves_on_committee", "target_name": "Audit Committee"},
+        {"source_name": "Mira Patel", "relation_type": "serves_on_committee", "target_name": "Audit Committee"}
+      ]
+    },
+    "fin-001": {
+      "entities": [
+        {"name": "Northwind Bank", "entity_type": "LegalEntity"},
+        {"name": "Net Income", "entity_type": "FinancialMetric"},
+        {"name": "Consumer Banking", "entity_type": "BusinessSegment"},
+        {"name": "Q4 2025", "entity_type": "ReportingPeriod"},
+        {"name": "Q4 2024", "entity_type": "ReportingPeriod"},
+        {"name": "USD 2.4 billion", "entity_type": "MonetaryAmount"},
+        {"name": "USD 2.1 billion", "entity_type": "MonetaryAmount"},
+        {"name": "USD 900 million", "entity_type": "MonetaryAmount"}
+      ],
+      "relations": [
+        {"source_name": "Northwind Bank", "relation_type": "reports_metric", "target_name": "Net Income"},
+        {"source_name": "Net Income", "relation_type": "reported_for_period", "target_name": "Q4 2025"},
+        {"source_name": "Consumer Banking", "relation_type": "segment_contribution", "target_name": "USD 900 million"}
+      ]
+    },
+    "shr-001": {
+      "entities": [
+        {"name": "Northwind Bank", "entity_type": "LegalEntity"},
+        {"name": "Share Repurchase Program", "entity_type": "RepurchaseProgram"},
+        {"name": "Quarterly Cash Dividend", "entity_type": "Dividend"},
+        {"name": "Common Share", "entity_type": "ShareClass"},
+        {"name": "USD 5 billion", "entity_type": "MonetaryAmount"},
+        {"name": "USD 0.42", "entity_type": "MonetaryAmount"}
+      ],
+      "relations": [
+        {"source_name": "Northwind Bank", "relation_type": "announced_repurchase", "target_name": "Share Repurchase Program"},
+        {"source_name": "Northwind Bank", "relation_type": "declared_dividend", "target_name": "Quarterly Cash Dividend"},
+        {"source_name": "Quarterly Cash Dividend", "relation_type": "applies_to_share_class", "target_name": "Common Share"}
+      ]
+    }
+  }
 }

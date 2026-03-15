@@ -16,19 +16,19 @@ FIBO_PROFILES: dict[str, FiboProfile] = {
         name="governance",
         entity_types=("LegalEntity", "Person", "OfficerRole", "Board", "Committee"),
         relation_types=("holds_role", "chairs", "serves_on_committee"),
-        required_query_templates=("who-serves-on-committee",),
+        required_query_templates=("who-serves-on-committee", "governance-query"),
     ),
     "financials": FiboProfile(
         name="financials",
         entity_types=("LegalEntity", "FinancialMetric", "ReportingPeriod", "BusinessSegment", "MonetaryAmount"),
         relation_types=("reports_metric", "reported_for_period", "segment_contribution"),
-        required_query_templates=("metric-for-period",),
+        required_query_templates=("metric-for-period", "financials-query"),
     ),
     "shareholder_return": FiboProfile(
         name="shareholder_return",
         entity_types=("LegalEntity", "RepurchaseProgram", "Dividend", "ShareClass", "MonetaryAmount"),
         relation_types=("announced_repurchase", "declared_dividend", "applies_to_share_class"),
-        required_query_templates=("shareholder-return-policy",),
+        required_query_templates=("shareholder-return-policy", "shareholder-return-query"),
     ),
 }
 

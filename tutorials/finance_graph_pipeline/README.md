@@ -18,7 +18,7 @@ without depending on external LLM or graph infrastructure.
 
 ### Problem
 
-Text-only retrieval is often insufficient for domain-specific, relation-heavy questions.
+Question-only or reference-only retrieval is often insufficient for domain-specific, relation-heavy questions.
 However, graph-grounded generation only helps if the graph is constructed with the right
 ontology profile, extraction quality, and graph quality.
 
@@ -44,9 +44,21 @@ We keep only the minimum end-to-end pipeline needed to test this claim:
 These four metrics are enough to evaluate whether improvements in upstream graph
 construction transfer to downstream answers.
 
+Current measurement details:
+
+- `query_support_path_coverage` is question-intent-specific, not just profile-level relation presence
+- `graph` answers are generated from a compact evidence bundle built from selected triples
+- extraction can be evaluated against the small manual gold subset before broader normalization work
+
+The evaluation output separates:
+
+- auxiliary non-graph baselines: `question_only_baseline`, `reference_only_baseline`
+- primary ontology-guided baselines: graph variants in the main `comparison_table`
+
 ## Contents
 
 - `data/sample_finance_dataset.json`: Small finance dataset slice
+- `data/finder_manual_gold_subset.json`: 30-example manual gold subset for FinDER top-3 categories
 - `framework/`: Reusable Python modules
 - `notebooks/finance_graph_pipeline_tutorial.ipynb`: Notebook-style walkthrough
 
@@ -56,12 +68,52 @@ construction transfer to downstream answers.
 python3 tutorials/finance_graph_pipeline/framework/demo.py
 ```
 
+Run the baseline evaluation harness:
+
+```bash
+python3 tutorials/finance_graph_pipeline/framework/evaluate.py
+```
+
+Run the minimal FinDER experiment runner:
+
+```bash
+python3 scripts/run_finder_experiment.py --per-category-limit 10
+```
+
+Run it against the manual gold subset only:
+
+```bash
+python3 scripts/run_finder_experiment.py \
+  --manual-gold-path tutorials/finance_graph_pipeline/data/finder_manual_gold_subset.json \
+  --manual-gold-only \
+  --sample-size 30
+```
+
+Evaluate an existing run against the manual gold subset:
+
+```bash
+python3 scripts/evaluate_manual_gold_subset.py \
+  --run-id <run_id> \
+  --manual-gold-path tutorials/finance_graph_pipeline/data/finder_manual_gold_subset.json
+```
+
+Build a proposal-oriented report with mean, 95% bootstrap CI, and category breakdown:
+
+```bash
+python3 scripts/build_proposal_metrics_report.py \
+  --run-id <primary_run_id> \
+  --manual-eval-run-id <manual_gold_run_id>
+```
+
+The run summary reports `comparison_table` for ontology-guided baselines and
+`auxiliary_comparison_table` for the two non-graph sanity checks.
+
 ## Design Notes
 
 - `FiboProfileAgent`: selects a constrained FIBO-like profile for each document
 - `ExtractionAgent`: performs profile-conditioned extraction
 - `EntityLinker`: normalizes aliases into canonical graph nodes
-- `GraphQualityAnalyzer`: computes global graph quality and query-support path coverage
+- `GraphQualityAnalyzer`: computes global graph quality and question-intent-specific query-support path coverage
 - `EvidenceSelector`: keeps only profile-matched, query-relevant evidence
 
 This scaffold is designed so you can later replace the heuristic extraction and

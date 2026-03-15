@@ -1,0 +1,6 @@
+duckdb
+neo4j
+openai-agents
+pyarrow
+python-dotenv
+

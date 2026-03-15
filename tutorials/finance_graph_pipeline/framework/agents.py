@@ -210,6 +210,8 @@ class EntityLinker:
         for index, relation in enumerate(relations, start=1):
             source_id = self._canonical_id(relation.source_name)
             target_id = self._canonical_id(relation.target_name)
+            self._ensure_relation_endpoint(nodes, source_id, relation.source_name, profile, relation.source_doc_id)
+            self._ensure_relation_endpoint(nodes, target_id, relation.target_name, profile, relation.source_doc_id)
             edge_id = f"{profile}:{relation.source_doc_id}:{index}:{source_id}:{relation.relation_type}:{target_id}"
             created_edges.append(
                 GraphEdge(
@@ -225,6 +227,30 @@ class EntityLinker:
             )
 
         return nodes, created_edges
+
+    def _ensure_relation_endpoint(
+        self,
+        nodes: dict[str, GraphNode],
+        node_id: str,
+        raw_name: str,
+        profile: str,
+        source_doc_id: str,
+    ) -> None:
+        if node_id in nodes:
+            node = nodes[node_id]
+            node.aliases.add(raw_name)
+            node.source_doc_ids.add(source_doc_id)
+            return
+
+        nodes[node_id] = GraphNode(
+            node_id=node_id,
+            name=raw_name,
+            entity_type="UnresolvedEntity",
+            profile=profile,
+            aliases={raw_name},
+            source_doc_ids={source_doc_id},
+            metadata={"relation_only_endpoint": True},
+        )
 
     def _canonical_id(self, name: str) -> str:
         lowered = name.strip().lower()
@@ -243,7 +269,7 @@ class EvidenceSelector:
         question: Question,
         edges: dict[str, GraphEdge],
     ) -> list[GraphEdge]:
-        required = self.template_requirements.get(question.query_template, ())
+        required = tuple(question.required_relations) or self.template_requirements.get(question.query_template, ())
         selected = [
             edge
             for edge in edges.values()
@@ -258,12 +284,23 @@ class AnswerGenerator:
             return ("Insufficient high-quality graph evidence to answer the question.", 0.2)
 
         if question.query_template == "who-serves-on-committee":
-            members = [nodes[edge.source_node_id].name for edge in edges if edge.relation_type == "serves_on_committee"]
+            members = [
+                nodes[edge.source_node_id].name
+                for edge in edges
+                if edge.relation_type == "serves_on_committee" and edge.source_node_id in nodes
+            ]
             answer = f"{', '.join(members)} serve on the audit committee."
             return answer, 0.88
 
         if question.query_template == "metric-for-period":
-            company = next((nodes[edge.source_node_id].name for edge in edges if edge.relation_type == "reports_metric"), "The company")
+            company = next(
+                (
+                    nodes[edge.source_node_id].name
+                    for edge in edges
+                    if edge.relation_type == "reports_metric" and edge.source_node_id in nodes
+                ),
+                "The company",
+            )
             answer = f"{company} reported USD 2.4 billion of net income for Q4 2025."
             return answer, 0.84
 

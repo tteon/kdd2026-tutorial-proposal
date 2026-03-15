@@ -18,6 +18,11 @@ class Question:
     query_template: str
     target_profile: str
     ground_truth_answer: str
+    intent_id: str = ""
+    required_relations: tuple[str, ...] = field(default_factory=tuple)
+    required_entity_types: tuple[str, ...] = field(default_factory=tuple)
+    focus_slots: tuple[str, ...] = field(default_factory=tuple)
+    focus_slot_hints: dict[str, tuple[str, ...]] = field(default_factory=dict)
 
 
 @dataclass
@@ -86,10 +91,14 @@ class QuerySupportRecord:
     question_id: str
     query_template: str
     target_profile: str
+    intent_id: str
     support_score: float
     answerable: bool
     supporting_edge_ids: list[str]
     missing_requirements: list[str]
+    matched_relations: list[str] = field(default_factory=list)
+    matched_entity_types: list[str] = field(default_factory=list)
+    filled_slots: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -100,6 +109,7 @@ class AnswerResult:
     profile_used: str
     selected_edge_ids: list[str]
     quality_notes: list[str]
+    evidence_bundle: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass

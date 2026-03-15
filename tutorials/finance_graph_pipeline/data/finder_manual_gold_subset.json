@@ -1,0 +1,624 @@
+{
+  "description": "Small manual gold subset for FinDER top-3 categories. The annotations are intentionally minimal and evidence-centric rather than exhaustive full-document graphs.",
+  "annotation_policy": {
+    "profiles": [
+      "governance",
+      "financials",
+      "shareholder_return"
+    ],
+    "scope": "Gold entities and relations capture the smallest graph facts needed for the question intent.",
+    "normalization": "Scoring lowercases and strips punctuation, so labels stay human-readable here."
+  },
+  "examples": [
+    {
+      "example_id": "aaa2a2aa",
+      "category": "Governance",
+      "gold_profile": "governance",
+      "intent_id": "governance_role_transition",
+      "required_answer_slots": ["person", "current_role", "prior_role"],
+      "preferred_answer_evidence": ["Catherine R. Clay", "Global Head of Derivatives", "Global Head of Data and Access Solutions"],
+      "gold_entities": [
+        {"name": "Catherine R. Clay", "entity_type": "Person"},
+        {"name": "Executive Vice President, Global Head of Derivatives", "entity_type": "OfficerRole"},
+        {"name": "Executive Vice President, Global Head of Data and Access Solutions", "entity_type": "OfficerRole"}
+      ],
+      "gold_relations": [
+        {"source_name": "Catherine R. Clay", "relation_type": "holds_role", "target_name": "Executive Vice President, Global Head of Derivatives"},
+        {"source_name": "Catherine R. Clay", "relation_type": "holds_role", "target_name": "Executive Vice President, Global Head of Data and Access Solutions"}
+      ]
+    },
+    {
+      "example_id": "657fc00c",
+      "category": "Governance",
+      "gold_profile": "governance",
+      "intent_id": "governance_board_structure",
+      "required_answer_slots": ["board_leadership", "directors"],
+      "preferred_answer_evidence": ["Calvin McDonald", "Chief Executive Officer", "Martha A.M. Morfitt", "Board Chair"],
+      "gold_entities": [
+        {"name": "Calvin McDonald", "entity_type": "Person"},
+        {"name": "Martha A.M. Morfitt", "entity_type": "Person"},
+        {"name": "Chief Executive Officer", "entity_type": "OfficerRole"},
+        {"name": "Board", "entity_type": "Board"}
+      ],
+      "gold_relations": [
+        {"source_name": "Calvin McDonald", "relation_type": "holds_role", "target_name": "Chief Executive Officer"},
+        {"source_name": "Martha A.M. Morfitt", "relation_type": "chairs", "target_name": "Board"}
+      ]
+    },
+    {
+      "example_id": "29bb2dcf",
+      "category": "Governance",
+      "gold_profile": "governance",
+      "intent_id": "governance_committee_oversight",
+      "required_answer_slots": ["committee", "oversight_roles", "oversight_topic"],
+      "preferred_answer_evidence": ["audit committee", "Chief Information Officer", "Chief Information Security Officer", "cybersecurity"],
+      "gold_entities": [
+        {"name": "Audit Committee", "entity_type": "Committee"},
+        {"name": "Board", "entity_type": "Board"},
+        {"name": "Chief Information Officer", "entity_type": "OfficerRole"},
+        {"name": "Chief Information Security Officer", "entity_type": "OfficerRole"}
+      ],
+      "gold_relations": [
+        {"source_name": "Chief Information Officer", "relation_type": "serves_on_committee", "target_name": "Audit Committee"},
+        {"source_name": "Chief Information Security Officer", "relation_type": "serves_on_committee", "target_name": "Audit Committee"}
+      ]
+    },
+    {
+      "example_id": "c4bf37dc",
+      "category": "Governance",
+      "gold_profile": "governance",
+      "intent_id": "governance_executive_roles",
+      "required_answer_slots": ["executives", "roles"],
+      "preferred_answer_evidence": ["Burt W. Podbere", "Chief Financial Officer"],
+      "gold_entities": [
+        {"name": "Burt W. Podbere", "entity_type": "Person"},
+        {"name": "Chief Financial Officer", "entity_type": "OfficerRole"}
+      ],
+      "gold_relations": [
+        {"source_name": "Burt W. Podbere", "relation_type": "holds_role", "target_name": "Chief Financial Officer"}
+      ]
+    },
+    {
+      "example_id": "8e615a7a",
+      "category": "Governance",
+      "gold_profile": "governance",
+      "intent_id": "governance_executive_roles",
+      "required_answer_slots": ["executives", "roles"],
+      "preferred_answer_evidence": ["Debora Shoquist", "Operations", "Timothy S. Teter", "General Counsel"],
+      "gold_entities": [
+        {"name": "Debora Shoquist", "entity_type": "Person"},
+        {"name": "Executive Vice President, Operations", "entity_type": "OfficerRole"},
+        {"name": "Timothy S. Teter", "entity_type": "Person"},
+        {"name": "Executive Vice President and General Counsel", "entity_type": "OfficerRole"}
+      ],
+      "gold_relations": [
+        {"source_name": "Debora Shoquist", "relation_type": "holds_role", "target_name": "Executive Vice President, Operations"},
+        {"source_name": "Timothy S. Teter", "relation_type": "holds_role", "target_name": "Executive Vice President and General Counsel"}
+      ]
+    },
+    {
+      "example_id": "24ab435b",
+      "category": "Governance",
+      "gold_profile": "governance",
+      "intent_id": "governance_committee_oversight",
+      "required_answer_slots": ["committee", "oversight_roles", "oversight_topic"],
+      "preferred_answer_evidence": ["Audit", "Aparna Bawa", "Dr. Helene D. Gayle", "James J. Goetz", "Rt Hon Sir John Key"],
+      "gold_entities": [
+        {"name": "Audit Committee", "entity_type": "Committee"},
+        {"name": "Aparna Bawa", "entity_type": "Person"},
+        {"name": "Dr. Helene D. Gayle", "entity_type": "Person"},
+        {"name": "James J. Goetz", "entity_type": "Person"},
+        {"name": "Rt Hon Sir John Key", "entity_type": "Person"}
+      ],
+      "gold_relations": [
+        {"source_name": "Aparna Bawa", "relation_type": "serves_on_committee", "target_name": "Audit Committee"},
+        {"source_name": "Dr. Helene D. Gayle", "relation_type": "serves_on_committee", "target_name": "Audit Committee"},
+        {"source_name": "James J. Goetz", "relation_type": "serves_on_committee", "target_name": "Audit Committee"},
+        {"source_name": "Rt Hon Sir John Key", "relation_type": "serves_on_committee", "target_name": "Audit Committee"}
+      ]
+    },
+    {
+      "example_id": "44c101b3",
+      "category": "Governance",
+      "gold_profile": "governance",
+      "intent_id": "governance_board_structure",
+      "required_answer_slots": ["board_leadership", "directors"],
+      "preferred_answer_evidence": ["Vincent Roche", "Chair of the Board of Directors", "Richard C. Puccio, Jr.", "Chief Financial Officer"],
+      "gold_entities": [
+        {"name": "Vincent Roche", "entity_type": "Person"},
+        {"name": "Richard C. Puccio, Jr.", "entity_type": "Person"},
+        {"name": "Michael Sondel", "entity_type": "Person"},
+        {"name": "Chief Executive Officer", "entity_type": "OfficerRole"},
+        {"name": "Chief Financial Officer", "entity_type": "OfficerRole"},
+        {"name": "Chief Accounting Officer", "entity_type": "OfficerRole"},
+        {"name": "Board", "entity_type": "Board"}
+      ],
+      "gold_relations": [
+        {"source_name": "Vincent Roche", "relation_type": "holds_role", "target_name": "Chief Executive Officer"},
+        {"source_name": "Vincent Roche", "relation_type": "chairs", "target_name": "Board"},
+        {"source_name": "Richard C. Puccio, Jr.", "relation_type": "holds_role", "target_name": "Chief Financial Officer"},
+        {"source_name": "Michael Sondel", "relation_type": "holds_role", "target_name": "Chief Accounting Officer"}
+      ]
+    },
+    {
+      "example_id": "ae2b4bf7",
+      "category": "Governance",
+      "gold_profile": "governance",
+      "intent_id": "governance_executive_roles",
+      "required_answer_slots": ["executives", "roles"],
+      "preferred_answer_evidence": ["Sandeep S. Aujla", "Chief Financial Officer", "Alex G. Balazs", "Chief Technology Officer", "Kerry J. McLean"],
+      "gold_entities": [
+        {"name": "Sandeep S. Aujla", "entity_type": "Person"},
+        {"name": "Chief Financial Officer", "entity_type": "OfficerRole"},
+        {"name": "Alex G. Balazs", "entity_type": "Person"},
+        {"name": "Chief Technology Officer", "entity_type": "OfficerRole"},
+        {"name": "Kerry J. McLean", "entity_type": "Person"},
+        {"name": "General Counsel and Corporate Secretary", "entity_type": "OfficerRole"}
+      ],
+      "gold_relations": [
+        {"source_name": "Sandeep S. Aujla", "relation_type": "holds_role", "target_name": "Chief Financial Officer"},
+        {"source_name": "Alex G. Balazs", "relation_type": "holds_role", "target_name": "Chief Technology Officer"},
+        {"source_name": "Kerry J. McLean", "relation_type": "holds_role", "target_name": "General Counsel and Corporate Secretary"}
+      ]
+    },
+    {
+      "example_id": "e4674704",
+      "category": "Governance",
+      "gold_profile": "governance",
+      "intent_id": "governance_executive_roles",
+      "required_answer_slots": ["executives", "roles"],
+      "preferred_answer_evidence": ["Barbara Rentler", "Chief Executive Officer", "Adam Orvos", "Chief Financial Officer", "Michael Balmuth"],
+      "gold_entities": [
+        {"name": "Barbara Rentler", "entity_type": "Person"},
+        {"name": "Adam Orvos", "entity_type": "Person"},
+        {"name": "Michael Balmuth", "entity_type": "Person"},
+        {"name": "Chief Executive Officer", "entity_type": "OfficerRole"},
+        {"name": "Chief Financial Officer", "entity_type": "OfficerRole"},
+        {"name": "Executive Chairman", "entity_type": "OfficerRole"}
+      ],
+      "gold_relations": [
+        {"source_name": "Barbara Rentler", "relation_type": "holds_role", "target_name": "Chief Executive Officer"},
+        {"source_name": "Adam Orvos", "relation_type": "holds_role", "target_name": "Chief Financial Officer"},
+        {"source_name": "Michael Balmuth", "relation_type": "holds_role", "target_name": "Executive Chairman"}
+      ]
+    },
+    {
+      "example_id": "de70a4bc",
+      "category": "Governance",
+      "gold_profile": "governance",
+      "intent_id": "governance_executive_roles",
+      "required_answer_slots": ["executives", "roles"],
+      "preferred_answer_evidence": ["Sassine Ghazi", "Chief Executive Officer", "Aart J. de Geus", "Executive Chair", "Shelagh Glaser"],
+      "gold_entities": [
+        {"name": "Sassine Ghazi", "entity_type": "Person"},
+        {"name": "Chief Executive Officer", "entity_type": "OfficerRole"},
+        {"name": "Aart J. de Geus", "entity_type": "Person"},
+        {"name": "Executive Chair of the Board of Directors", "entity_type": "OfficerRole"},
+        {"name": "Shelagh Glaser", "entity_type": "Person"},
+        {"name": "Chief Financial Officer", "entity_type": "OfficerRole"},
+        {"name": "John F. Runkel, Jr.", "entity_type": "Person"},
+        {"name": "General Counsel and Corporate Secretary", "entity_type": "OfficerRole"}
+      ],
+      "gold_relations": [
+        {"source_name": "Sassine Ghazi", "relation_type": "holds_role", "target_name": "Chief Executive Officer"},
+        {"source_name": "Aart J. de Geus", "relation_type": "holds_role", "target_name": "Executive Chair of the Board of Directors"},
+        {"source_name": "Shelagh Glaser", "relation_type": "holds_role", "target_name": "Chief Financial Officer"},
+        {"source_name": "John F. Runkel, Jr.", "relation_type": "holds_role", "target_name": "General Counsel and Corporate Secretary"}
+      ]
+    },
+
+    {
+      "example_id": "b33fcee7",
+      "category": "Financials",
+      "gold_profile": "financials",
+      "intent_id": "financials_metric_delta",
+      "required_answer_slots": ["metric", "current_period", "prior_period", "value_delta"],
+      "preferred_answer_evidence": ["Data and access solutions", "539.2", "427.7"],
+      "gold_entities": [
+        {"name": "Revenue", "entity_type": "FinancialMetric"},
+        {"name": "Data and access solutions", "entity_type": "BusinessSegment"},
+        {"name": "2023", "entity_type": "ReportingPeriod"},
+        {"name": "2021", "entity_type": "ReportingPeriod"},
+        {"name": "539.2", "entity_type": "MonetaryAmount"},
+        {"name": "427.7", "entity_type": "MonetaryAmount"}
+      ],
+      "gold_relations": [
+        {"source_name": "Revenue", "relation_type": "reported_for_period", "target_name": "2023"},
+        {"source_name": "Revenue", "relation_type": "reported_for_period", "target_name": "2021"},
+        {"source_name": "Data and access solutions", "relation_type": "segment_contribution", "target_name": "539.2"},
+        {"source_name": "Data and access solutions", "relation_type": "segment_contribution", "target_name": "427.7"}
+      ]
+    },
+    {
+      "example_id": "4fd8f27d",
+      "category": "Financials",
+      "gold_profile": "financials",
+      "intent_id": "financials_profitability_trend",
+      "required_answer_slots": ["metric", "periods", "values"],
+      "preferred_answer_evidence": ["Net income", "1,550,190", "854,800", "975,322"],
+      "gold_entities": [
+        {"name": "Net income", "entity_type": "FinancialMetric"},
+        {"name": "2024", "entity_type": "ReportingPeriod"},
+        {"name": "2023", "entity_type": "ReportingPeriod"},
+        {"name": "2022", "entity_type": "ReportingPeriod"},
+        {"name": "1,550,190", "entity_type": "MonetaryAmount"},
+        {"name": "854,800", "entity_type": "MonetaryAmount"},
+        {"name": "975,322", "entity_type": "MonetaryAmount"}
+      ],
+      "gold_relations": [
+        {"source_name": "Net income", "relation_type": "reported_for_period", "target_name": "2024"},
+        {"source_name": "Net income", "relation_type": "reported_for_period", "target_name": "2023"},
+        {"source_name": "Net income", "relation_type": "reported_for_period", "target_name": "2022"}
+      ]
+    },
+    {
+      "example_id": "a6960aa5",
+      "category": "Financials",
+      "gold_profile": "financials",
+      "intent_id": "financials_liquidity_breakdown",
+      "required_answer_slots": ["cash", "investments", "credit_facility", "period"],
+      "preferred_answer_evidence": ["Cash and cash equivalents", "2,243,971", "1,154,867"],
+      "gold_entities": [
+        {"name": "Cash and cash equivalents", "entity_type": "FinancialMetric"},
+        {"name": "2024", "entity_type": "ReportingPeriod"},
+        {"name": "2023", "entity_type": "ReportingPeriod"},
+        {"name": "2,243,971", "entity_type": "MonetaryAmount"},
+        {"name": "1,154,867", "entity_type": "MonetaryAmount"}
+      ],
+      "gold_relations": [
+        {"source_name": "Cash and cash equivalents", "relation_type": "reported_for_period", "target_name": "2024"},
+        {"source_name": "Cash and cash equivalents", "relation_type": "reported_for_period", "target_name": "2023"}
+      ]
+    },
+    {
+      "example_id": "b703f322",
+      "category": "Financials",
+      "gold_profile": "financials",
+      "intent_id": "financials_metric_delta",
+      "required_answer_slots": ["metric", "current_period", "prior_period", "value_delta"],
+      "preferred_answer_evidence": ["Total revenue", "3,055,555", "2,241,236", "1,451,594"],
+      "gold_entities": [
+        {"name": "Total revenue", "entity_type": "FinancialMetric"},
+        {"name": "2024", "entity_type": "ReportingPeriod"},
+        {"name": "2023", "entity_type": "ReportingPeriod"},
+        {"name": "2022", "entity_type": "ReportingPeriod"},
+        {"name": "3,055,555", "entity_type": "MonetaryAmount"},
+        {"name": "2,241,236", "entity_type": "MonetaryAmount"},
+        {"name": "1,451,594", "entity_type": "MonetaryAmount"}
+      ],
+      "gold_relations": [
+        {"source_name": "Total revenue", "relation_type": "reported_for_period", "target_name": "2024"},
+        {"source_name": "Total revenue", "relation_type": "reported_for_period", "target_name": "2023"},
+        {"source_name": "Total revenue", "relation_type": "reported_for_period", "target_name": "2022"}
+      ]
+    },
+    {
+      "example_id": "8ac98b17",
+      "category": "Financials",
+      "gold_profile": "financials",
+      "intent_id": "financials_liquidity_breakdown",
+      "required_answer_slots": ["cash", "investments", "credit_facility", "period"],
+      "preferred_answer_evidence": ["cash and cash equivalents", "3.4 billion", "99.6 million", "750.0 million"],
+      "gold_entities": [
+        {"name": "Cash and cash equivalents", "entity_type": "FinancialMetric"},
+        {"name": "Short-term investments", "entity_type": "FinancialMetric"},
+        {"name": "2024", "entity_type": "ReportingPeriod"},
+        {"name": "3.4 billion", "entity_type": "MonetaryAmount"},
+        {"name": "99.6 million", "entity_type": "MonetaryAmount"},
+        {"name": "750.0 million", "entity_type": "MonetaryAmount"}
+      ],
+      "gold_relations": [
+        {"source_name": "Cash and cash equivalents", "relation_type": "reported_for_period", "target_name": "2024"},
+        {"source_name": "Short-term investments", "relation_type": "reported_for_period", "target_name": "2024"}
+      ]
+    },
+    {
+      "example_id": "7b6ec08b",
+      "category": "Financials",
+      "gold_profile": "financials",
+      "intent_id": "financials_debt_profile",
+      "required_answer_slots": ["debt_instrument", "period", "amount"],
+      "preferred_answer_evidence": ["0.309% Notes Due 2023", "9,709", "10,953", "1,250"],
+      "gold_entities": [
+        {"name": "Debt", "entity_type": "FinancialMetric"},
+        {"name": "0.309% Notes Due 2023", "entity_type": "FinancialMetric"},
+        {"name": "2024", "entity_type": "ReportingPeriod"},
+        {"name": "2023", "entity_type": "ReportingPeriod"},
+        {"name": "9,709", "entity_type": "MonetaryAmount"},
+        {"name": "10,953", "entity_type": "MonetaryAmount"},
+        {"name": "1,250", "entity_type": "MonetaryAmount"}
+      ],
+      "gold_relations": [
+        {"source_name": "Debt", "relation_type": "reported_for_period", "target_name": "2024"},
+        {"source_name": "Debt", "relation_type": "reported_for_period", "target_name": "2023"},
+        {"source_name": "0.309% Notes Due 2023", "relation_type": "reported_for_period", "target_name": "2023"}
+      ]
+    },
+    {
+      "example_id": "bcdc4f8b",
+      "category": "Financials",
+      "gold_profile": "financials",
+      "intent_id": "financials_liquidity_breakdown",
+      "required_answer_slots": ["cash", "investments", "credit_facility", "period"],
+      "preferred_answer_evidence": ["Cash, cash equivalents, and investments", "6,752.0", "5,437.9", "5,216.8"],
+      "gold_entities": [
+        {"name": "Cash and cash equivalents", "entity_type": "FinancialMetric"},
+        {"name": "Investments", "entity_type": "FinancialMetric"},
+        {"name": "2024", "entity_type": "ReportingPeriod"},
+        {"name": "2023", "entity_type": "ReportingPeriod"},
+        {"name": "6,752.0", "entity_type": "MonetaryAmount"},
+        {"name": "5,437.9", "entity_type": "MonetaryAmount"},
+        {"name": "5,216.8", "entity_type": "MonetaryAmount"},
+        {"name": "4,302.6", "entity_type": "MonetaryAmount"}
+      ],
+      "gold_relations": [
+        {"source_name": "Cash and cash equivalents", "relation_type": "reported_for_period", "target_name": "2024"},
+        {"source_name": "Cash and cash equivalents", "relation_type": "reported_for_period", "target_name": "2023"},
+        {"source_name": "Investments", "relation_type": "reported_for_period", "target_name": "2024"},
+        {"source_name": "Investments", "relation_type": "reported_for_period", "target_name": "2023"}
+      ]
+    },
+    {
+      "example_id": "bd9a5806",
+      "category": "Financials",
+      "gold_profile": "financials",
+      "intent_id": "financials_liquidity_breakdown",
+      "required_answer_slots": ["cash", "investments", "credit_facility", "period"],
+      "preferred_answer_evidence": ["1.0 billion", "400.0 million", "200.0 million", "2023"],
+      "gold_entities": [
+        {"name": "Liquidity", "entity_type": "FinancialMetric"},
+        {"name": "2023", "entity_type": "ReportingPeriod"},
+        {"name": "1.0 billion", "entity_type": "MonetaryAmount"},
+        {"name": "400.0 million", "entity_type": "MonetaryAmount"},
+        {"name": "200.0 million", "entity_type": "MonetaryAmount"}
+      ],
+      "gold_relations": [
+        {"source_name": "Liquidity", "relation_type": "reported_for_period", "target_name": "2023"}
+      ]
+    },
+    {
+      "example_id": "ba0474b6",
+      "category": "Financials",
+      "gold_profile": "financials",
+      "intent_id": "financials_liquidity_breakdown",
+      "required_answer_slots": ["cash", "investments", "credit_facility", "period"],
+      "preferred_answer_evidence": ["cash, cash equivalents, and investments", "4.1 billion", "412 million", "July 31, 2024"],
+      "gold_entities": [
+        {"name": "Cash, cash equivalents, and investments", "entity_type": "FinancialMetric"},
+        {"name": "2024", "entity_type": "ReportingPeriod"},
+        {"name": "2023", "entity_type": "ReportingPeriod"},
+        {"name": "4.1 billion", "entity_type": "MonetaryAmount"},
+        {"name": "412 million", "entity_type": "MonetaryAmount"}
+      ],
+      "gold_relations": [
+        {"source_name": "Cash, cash equivalents, and investments", "relation_type": "reported_for_period", "target_name": "2024"},
+        {"source_name": "Cash, cash equivalents, and investments", "relation_type": "reported_for_period", "target_name": "2023"}
+      ]
+    },
+    {
+      "example_id": "adcd97ab",
+      "category": "Financials",
+      "gold_profile": "financials",
+      "intent_id": "financials_liquidity_breakdown",
+      "required_answer_slots": ["cash", "investments", "credit_facility", "period"],
+      "preferred_answer_evidence": ["Operating activities", "709.3", "607.5", "692.4"],
+      "gold_entities": [
+        {"name": "Operating cash flow", "entity_type": "FinancialMetric"},
+        {"name": "2024", "entity_type": "ReportingPeriod"},
+        {"name": "2023", "entity_type": "ReportingPeriod"},
+        {"name": "2022", "entity_type": "ReportingPeriod"},
+        {"name": "709.3", "entity_type": "MonetaryAmount"},
+        {"name": "607.5", "entity_type": "MonetaryAmount"},
+        {"name": "692.4", "entity_type": "MonetaryAmount"}
+      ],
+      "gold_relations": [
+        {"source_name": "Operating cash flow", "relation_type": "reported_for_period", "target_name": "2024"},
+        {"source_name": "Operating cash flow", "relation_type": "reported_for_period", "target_name": "2023"},
+        {"source_name": "Operating cash flow", "relation_type": "reported_for_period", "target_name": "2022"}
+      ]
+    },
+
+    {
+      "example_id": "30eb0cd9",
+      "category": "Shareholder return",
+      "gold_profile": "shareholder_return",
+      "intent_id": "shareholder_return_authorization",
+      "required_answer_slots": ["program", "authorized_amount", "remaining_capacity"],
+      "preferred_answer_evidence": ["1.8 billion", "83.9 million", "384.0 million", "661,721 shares"],
+      "gold_entities": [
+        {"name": "Referenced Company", "entity_type": "LegalEntity"},
+        {"name": "Share Repurchase Program", "entity_type": "RepurchaseProgram"},
+        {"name": "Common Stock", "entity_type": "ShareClass"},
+        {"name": "1.8 billion", "entity_type": "MonetaryAmount"},
+        {"name": "83.9 million", "entity_type": "MonetaryAmount"},
+        {"name": "384.0 million", "entity_type": "MonetaryAmount"}
+      ],
+      "gold_relations": [
+        {"source_name": "Referenced Company", "relation_type": "announced_repurchase", "target_name": "Share Repurchase Program"}
+      ]
+    },
+    {
+      "example_id": "f514dd06",
+      "category": "Shareholder return",
+      "gold_profile": "shareholder_return",
+      "intent_id": "shareholder_return_activity",
+      "required_answer_slots": ["program", "repurchase_amount", "price_or_volume"],
+      "preferred_answer_evidence": ["558.7 million", "444.0 million", "1.5 million shares", "1.4 million shares"],
+      "gold_entities": [
+        {"name": "Referenced Company", "entity_type": "LegalEntity"},
+        {"name": "Share Repurchase Program", "entity_type": "RepurchaseProgram"},
+        {"name": "558.7 million", "entity_type": "MonetaryAmount"},
+        {"name": "444.0 million", "entity_type": "MonetaryAmount"},
+        {"name": "1.5 million", "entity_type": "MonetaryAmount"},
+        {"name": "1.4 million", "entity_type": "MonetaryAmount"}
+      ],
+      "gold_relations": [
+        {"source_name": "Referenced Company", "relation_type": "announced_repurchase", "target_name": "Share Repurchase Program"}
+      ]
+    },
+    {
+      "example_id": "864fd74a",
+      "category": "Shareholder return",
+      "gold_profile": "shareholder_return",
+      "intent_id": "shareholder_return_tax_impact",
+      "required_answer_slots": ["tax_factor", "repurchase_program", "dividend_program"],
+      "preferred_answer_evidence": ["25.0 billion", "22.5 billion", "9.7 billion", "395 million", "1% excise tax"],
+      "gold_entities": [
+        {"name": "Referenced Company", "entity_type": "LegalEntity"},
+        {"name": "Share Repurchase Program", "entity_type": "RepurchaseProgram"},
+        {"name": "Dividend", "entity_type": "Dividend"},
+        {"name": "25.0 billion", "entity_type": "MonetaryAmount"},
+        {"name": "22.5 billion", "entity_type": "MonetaryAmount"},
+        {"name": "9.7 billion", "entity_type": "MonetaryAmount"},
+        {"name": "395 million", "entity_type": "MonetaryAmount"}
+      ],
+      "gold_relations": [
+        {"source_name": "Referenced Company", "relation_type": "announced_repurchase", "target_name": "Share Repurchase Program"},
+        {"source_name": "Referenced Company", "relation_type": "declared_dividend", "target_name": "Dividend"}
+      ]
+    },
+    {
+      "example_id": "dd99d4f6",
+      "category": "Shareholder return",
+      "gold_profile": "shareholder_return",
+      "intent_id": "shareholder_return_authorization",
+      "required_answer_slots": ["program", "authorized_amount", "remaining_capacity"],
+      "preferred_answer_evidence": ["1.0 billion", "3.6 billion", "500.0 million", "December 31, 2025"],
+      "gold_entities": [
+        {"name": "Referenced Company", "entity_type": "LegalEntity"},
+        {"name": "Share Repurchase Program", "entity_type": "RepurchaseProgram"},
+        {"name": "1.0 billion", "entity_type": "MonetaryAmount"},
+        {"name": "3.6 billion", "entity_type": "MonetaryAmount"},
+        {"name": "500.0 million", "entity_type": "MonetaryAmount"}
+      ],
+      "gold_relations": [
+        {"source_name": "Referenced Company", "relation_type": "announced_repurchase", "target_name": "Share Repurchase Program"}
+      ]
+    },
+    {
+      "example_id": "201e1ddd",
+      "category": "Shareholder return",
+      "gold_profile": "shareholder_return",
+      "intent_id": "shareholder_return_authorization",
+      "required_answer_slots": ["program", "authorized_amount", "remaining_capacity"],
+      "preferred_answer_evidence": ["207.7 million shares", "15.0 billion", "1.7 billion"],
+      "gold_entities": [
+        {"name": "Referenced Company", "entity_type": "LegalEntity"},
+        {"name": "Share Repurchase Program", "entity_type": "RepurchaseProgram"},
+        {"name": "Common Stock", "entity_type": "ShareClass"},
+        {"name": "15.0 billion", "entity_type": "MonetaryAmount"},
+        {"name": "1.7 billion", "entity_type": "MonetaryAmount"},
+        {"name": "207.7 million", "entity_type": "MonetaryAmount"}
+      ],
+      "gold_relations": [
+        {"source_name": "Referenced Company", "relation_type": "announced_repurchase", "target_name": "Share Repurchase Program"}
+      ]
+    },
+    {
+      "example_id": "ae44c022",
+      "category": "Shareholder return",
+      "gold_profile": "shareholder_return",
+      "intent_id": "shareholder_return_activity",
+      "required_answer_slots": ["program", "repurchase_amount", "price_or_volume"],
+      "preferred_answer_evidence": ["4 million shares", "201.54", "5 million shares", "4.74 billion"],
+      "gold_entities": [
+        {"name": "Referenced Company", "entity_type": "LegalEntity"},
+        {"name": "Share Repurchase Program", "entity_type": "RepurchaseProgram"},
+        {"name": "4.74 billion", "entity_type": "MonetaryAmount"},
+        {"name": "4 million", "entity_type": "MonetaryAmount"},
+        {"name": "5 million", "entity_type": "MonetaryAmount"},
+        {"name": "201.54", "entity_type": "MonetaryAmount"}
+      ],
+      "gold_relations": [
+        {"source_name": "Referenced Company", "relation_type": "announced_repurchase", "target_name": "Share Repurchase Program"}
+      ]
+    },
+    {
+      "example_id": "89dd3112",
+      "category": "Shareholder return",
+      "gold_profile": "shareholder_return",
+      "intent_id": "shareholder_return_policy_mix",
+      "required_answer_slots": ["repurchase_program", "dividend_program"],
+      "preferred_answer_evidence": ["2.3 billion", "1.9 billion", "3.0 billion", "3.60 per share", "1.0 billion"],
+      "gold_entities": [
+        {"name": "Referenced Company", "entity_type": "LegalEntity"},
+        {"name": "Share Repurchase Program", "entity_type": "RepurchaseProgram"},
+        {"name": "Dividend", "entity_type": "Dividend"},
+        {"name": "Common Stock", "entity_type": "ShareClass"},
+        {"name": "2.3 billion", "entity_type": "MonetaryAmount"},
+        {"name": "1.9 billion", "entity_type": "MonetaryAmount"},
+        {"name": "3.0 billion", "entity_type": "MonetaryAmount"},
+        {"name": "3.60 per share", "entity_type": "MonetaryAmount"},
+        {"name": "1.0 billion", "entity_type": "MonetaryAmount"}
+      ],
+      "gold_relations": [
+        {"source_name": "Referenced Company", "relation_type": "announced_repurchase", "target_name": "Share Repurchase Program"},
+        {"source_name": "Referenced Company", "relation_type": "declared_dividend", "target_name": "Dividend"},
+        {"source_name": "Dividend", "relation_type": "applies_to_share_class", "target_name": "Common Stock"}
+      ]
+    },
+    {
+      "example_id": "2a356cda",
+      "category": "Shareholder return",
+      "gold_profile": "shareholder_return",
+      "intent_id": "shareholder_return_activity",
+      "required_answer_slots": ["program", "repurchase_amount", "price_or_volume"],
+      "preferred_answer_evidence": ["1.9 billion", "2.1 billion", "950", "650", "8.2", "10.3"],
+      "gold_entities": [
+        {"name": "Referenced Company", "entity_type": "LegalEntity"},
+        {"name": "Share Repurchase Program", "entity_type": "RepurchaseProgram"},
+        {"name": "1.9 billion", "entity_type": "MonetaryAmount"},
+        {"name": "2.1 billion", "entity_type": "MonetaryAmount"},
+        {"name": "950", "entity_type": "MonetaryAmount"},
+        {"name": "650", "entity_type": "MonetaryAmount"},
+        {"name": "8.2", "entity_type": "MonetaryAmount"},
+        {"name": "10.3", "entity_type": "MonetaryAmount"}
+      ],
+      "gold_relations": [
+        {"source_name": "Referenced Company", "relation_type": "announced_repurchase", "target_name": "Share Repurchase Program"}
+      ]
+    },
+    {
+      "example_id": "10bc2a96",
+      "category": "Shareholder return",
+      "gold_profile": "shareholder_return",
+      "intent_id": "shareholder_return_authorization",
+      "required_answer_slots": ["program", "authorized_amount", "remaining_capacity"],
+      "preferred_answer_evidence": ["1.5 billion", "194.3 million", "suspended"],
+      "gold_entities": [
+        {"name": "Referenced Company", "entity_type": "LegalEntity"},
+        {"name": "Share Repurchase Program", "entity_type": "RepurchaseProgram"},
+        {"name": "Common Stock", "entity_type": "ShareClass"},
+        {"name": "1.5 billion", "entity_type": "MonetaryAmount"},
+        {"name": "194.3 million", "entity_type": "MonetaryAmount"}
+      ],
+      "gold_relations": [
+        {"source_name": "Referenced Company", "relation_type": "announced_repurchase", "target_name": "Share Repurchase Program"}
+      ]
+    },
+    {
+      "example_id": "b1e82d10",
+      "category": "Shareholder return",
+      "gold_profile": "shareholder_return",
+      "intent_id": "shareholder_return_authorization",
+      "required_answer_slots": ["program", "authorized_amount", "remaining_capacity"],
+      "preferred_answer_evidence": ["14.0 billion", "19.0 billion", "16.0 billion", "14.5 billion", "0.65 per share"],
+      "gold_entities": [
+        {"name": "Referenced Company", "entity_type": "LegalEntity"},
+        {"name": "Share Repurchase Program", "entity_type": "RepurchaseProgram"},
+        {"name": "Dividend", "entity_type": "Dividend"},
+        {"name": "Common Stock", "entity_type": "ShareClass"},
+        {"name": "14.0 billion", "entity_type": "MonetaryAmount"},
+        {"name": "19.0 billion", "entity_type": "MonetaryAmount"},
+        {"name": "16.0 billion", "entity_type": "MonetaryAmount"},
+        {"name": "14.5 billion", "entity_type": "MonetaryAmount"},
+        {"name": "0.65 per share", "entity_type": "MonetaryAmount"}
+      ],
+      "gold_relations": [
+        {"source_name": "Referenced Company", "relation_type": "announced_repurchase", "target_name": "Share Repurchase Program"},
+        {"source_name": "Referenced Company", "relation_type": "declared_dividend", "target_name": "Dividend"},
+        {"source_name": "Dividend", "relation_type": "applies_to_share_class", "target_name": "Common Stock"}
+      ]
+    }
+  ]
+}

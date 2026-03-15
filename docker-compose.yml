@@ -1,0 +1,52 @@
+services:
+  dozerdb:
+    image: graphstack/dozerdb:5.26.3.0
+    container_name: kdd2026-dozerdb
+    ports:
+      - "${NEO4J_HTTP_PORT:-7474}:7474"
+      - "${NEO4J_BOLT_PORT:-7687}:7687"
+    environment:
+      NEO4J_AUTH: "${NEO4J_AUTH:-neo4j/password}"
+      NEO4J_PLUGINS: '["apoc", "n10s"]'
+      NEO4J_dbms_security_procedures_unrestricted: "apoc.*,n10s.*"
+      NEO4J_dbms_security_procedures_allowlist: "apoc.*,n10s.*"
+      NEO4J_apoc_export_file_enabled: "true"
+      NEO4J_apoc_import_file_enabled: "true"
+    volumes:
+      - ./data/neo4j/data:/data
+      - ./data/neo4j/logs:/logs
+      - ./data/neo4j/import:/var/lib/neo4j/import
+      - ./data/neo4j/plugins:/plugins
+    networks:
+      - tutorial-net
+
+  runner:
+    build:
+      context: .
+      dockerfile: docker/python/Dockerfile
+    container_name: kdd2026-experiment-runner
+    depends_on:
+      - dozerdb
+    working_dir: /workspace/app
+    command: ["sleep", "infinity"]
+    tty: true
+    stdin_open: true
+    environment:
+      OPENAI_API_KEY: "${OPENAI_API_KEY:-}"
+      DOZERDB_BOLT_URI: "bolt://dozerdb:7687"
+      DOZERDB_HTTP_URI: "http://dozerdb:7474"
+      NEO4J_USER: "${NEO4J_USER:-neo4j}"
+      NEO4J_PASSWORD: "${NEO4J_PASSWORD:-password}"
+      FINDER_INPUT_PATH: "${FINDER_INPUT_PATH:-/workspace/dataset/train-00000-of-00001.parquet}"
+      FINDER_OUTPUT_DIR: "${FINDER_OUTPUT_DIR:-/workspace/app/data/processed/finder_top3}"
+      METADATA_DB_PATH: "${METADATA_DB_PATH:-/workspace/app/data/metadata/experiment.sqlite}"
+    volumes:
+      - .:/workspace/app
+      - ${FINDER_DATASET_DIR:-../dataset}:/workspace/dataset:ro
+    networks:
+      - tutorial-net
+
+networks:
+  tutorial-net:
+    driver: bridge
+

@@ -52,7 +52,7 @@ The tutorial is organized around four measurable quantities:
 |---|---|
 | Profile Selection Accuracy | Shows whether ontology/profile routing is correct |
 | Ontology-Constrained Extraction F1 | Shows whether the selected ontology improves structured extraction |
-| Query-Support Path Coverage | Shows whether the graph actually contains answer-supporting paths |
+| Query-Support Path Coverage | Shows whether the graph contains the question-intent-specific subgraph needed to answer |
 | Answer Quality Delta | Shows whether graph quality transfers to downstream answer quality |
 
 These four quantities are enough to support the end-to-end argument without introducing unnecessary
@@ -90,6 +90,28 @@ By the end of the tutorial, participants should be able to:
   `tutorials/finance_graph_pipeline/framework/`
 - Small finance sample dataset:
   `tutorials/finance_graph_pipeline/data/sample_finance_dataset.json`
+
+## Reproducible Experiment Stack
+
+The repository now includes a reproducible Docker Compose stack with separate services for:
+
+- DozerDB graph storage
+- a Python runner environment for OpenAI Agents SDK workflows and FinDER preprocessing
+
+Key files:
+
+- `docker-compose.yml`
+- `docker/python/Dockerfile`
+- `docs/README.md`
+- `scripts/README.md`
+- `scripts/filter_finder_top3.py`
+- `scripts/init_metadata_db.py`
+- `scripts/run_finder_experiment.py`
+- `scripts/evaluate_manual_gold_subset.py`
+- `scripts/build_proposal_metrics_report.py`
+- `tutorials/finance_graph_pipeline/data/finder_manual_gold_subset.json`
+
+Generated run outputs under `data/` and `exports/` are kept local and are intentionally excluded from the repository push.
 
 ## Tutorial Outline
 
