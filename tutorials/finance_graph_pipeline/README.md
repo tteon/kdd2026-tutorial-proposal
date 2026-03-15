@@ -11,8 +11,9 @@ core tutorial claim:
 6. Quality-aware evidence selection
 7. Answer generation
 
-It is intentionally lightweight and heuristic-driven so you can inspect the flow
-without depending on external LLM or graph infrastructure.
+It is intentionally lightweight so you can inspect the flow end to end. The
+pipeline supports both heuristic mode and OpenAI Agents SDK mode for profile
+selection, ontology-constrained extraction, and answer generation.
 
 ## Minimal Problem-Solution-Evidence Frame
 
@@ -47,7 +48,8 @@ construction transfer to downstream answers.
 Current measurement details:
 
 - `query_support_path_coverage` is question-intent-specific, not just profile-level relation presence
-- `graph` answers are generated from a compact evidence bundle built from selected triples
+- the main comparison uses one shared answer agent with a fixed prompt, fixed model, and fixed context budget
+- `graph` answers are generated from a compact evidence bundle built from selected triples and serialized as structured text
 - extraction can be evaluated against the small manual gold subset before broader normalization work
 
 The evaluation output separates:
@@ -78,6 +80,12 @@ Run the minimal FinDER experiment runner:
 
 ```bash
 python3 scripts/run_finder_experiment.py --per-category-limit 10
+```
+
+Use the legacy code-based answer synthesis only as a supplemental baseline:
+
+```bash
+python3 scripts/run_finder_experiment.py --per-category-limit 10 --answer-mode heuristic_synthesis
 ```
 
 Run it against the manual gold subset only:
@@ -112,10 +120,10 @@ The run summary reports `comparison_table` for ontology-guided baselines and
 
 - `FiboProfileAgent`: selects a constrained FIBO-like profile for each document
 - `ExtractionAgent`: performs profile-conditioned extraction
+- `AnswerAgent`: uses the same answer prompt across baselines while changing only the context bundle
 - `EntityLinker`: normalizes aliases into canonical graph nodes
 - `GraphQualityAnalyzer`: computes global graph quality and question-intent-specific query-support path coverage
 - `EvidenceSelector`: keeps only profile-matched, query-relevant evidence
 
-This scaffold is designed so you can later replace the heuristic extraction and
-answer generation with actual LLM calls, ontology resolution, and graph databases
-without changing the minimal evaluation frame.
+This scaffold is designed so you can swap between heuristic and agent-backed
+components without changing the minimal evaluation frame.

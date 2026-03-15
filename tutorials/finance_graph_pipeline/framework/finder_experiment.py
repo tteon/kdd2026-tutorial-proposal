@@ -116,6 +116,11 @@ class FinDERRunConfig:
     model_name: str
     persist_graph: bool
     max_references: int
+    answer_mode: str
+    answer_context_char_budget: int
+    answer_reference_sentence_limit: int
+    answer_graph_triple_limit: int
+    answer_graph_snippet_limit: int
     openai_max_workers: int
     openai_call_timeout_seconds: int
     checkpoint_every_examples: int
@@ -134,6 +139,13 @@ class OpenAIProfileDecision:
 class OpenAIExtractionBundle:
     entities: list[dict[str, str]]
     relations: list[dict[str, str]]
+
+
+@dataclass
+class OpenAIAnswerBundle:
+    answer: str
+    confidence: float
+    quality_notes: list[str]
 
 
 class FinDERProfileAgent:
@@ -599,6 +611,260 @@ class FinDERExtractionAgent:
         return unique
 
 
+class FinDERAnswerAgent:
+    def __init__(
+        self,
+        mode: str = "heuristic",
+        model_name: str = "gpt-4.1-mini",
+        context_char_budget: int = 2200,
+        reference_sentence_limit: int = 4,
+        graph_triple_limit: int = 5,
+        graph_snippet_limit: int = 3,
+    ) -> None:
+        self.mode = mode
+        self.model_name = model_name
+        self.context_char_budget = context_char_budget
+        self.reference_sentence_limit = reference_sentence_limit
+        self.graph_triple_limit = graph_triple_limit
+        self.graph_snippet_limit = graph_snippet_limit
+        self.agent = None
+        if mode == "openai":
+            self.agent = self._build_openai_agent()
+
+    def answer(
+        self,
+        question: Question,
+        context_mode: str,
+        context_bundle: dict[str, Any],
+    ) -> OpenAIAnswerBundle:
+        if self.mode == "openai" and self.agent is not None:
+            return self._answer_openai(question, context_mode, context_bundle)
+
+        if context_mode == "question_only":
+            return OpenAIAnswerBundle(
+                answer="Insufficient grounded context to answer from the question alone.",
+                confidence=0.12,
+                quality_notes=["Question-only fallback answer."],
+            )
+
+        if context_mode == "reference_only":
+            sentences = [str(item).strip() for item in context_bundle.get("reference_sentences", []) if str(item).strip()]
+            answer = " ".join(sentences[:2]) if sentences else "Reference context did not provide grounded answer text."
+            return OpenAIAnswerBundle(
+                answer=answer,
+                confidence=0.35,
+                quality_notes=["Reference-only fallback answer."],
+            )
+
+        triples = context_bundle.get("triples", [])
+        if not triples:
+            missing_slots = context_bundle.get("missing_slots", [])
+            if missing_slots:
+                answer = "Graph evidence is incomplete. Missing slots: " + ", ".join(str(item) for item in missing_slots) + "."
+            else:
+                answer = "Graph evidence did not provide grounded triples for this question."
+            return OpenAIAnswerBundle(
+                answer=answer,
+                confidence=0.18,
+                quality_notes=["Graph-evidence fallback answer from empty triple set."],
+            )
+
+        grounded = [
+            f"{item['source_name']} {item['relation_type'].replace('_', ' ')} {item['target_name']}"
+            for item in triples[:3]
+        ]
+        return OpenAIAnswerBundle(
+            answer="Graph-grounded evidence: " + "; ".join(grounded) + ".",
+            confidence=0.42,
+            quality_notes=["Graph-evidence fallback answer."],
+        )
+
+    def _build_openai_agent(self) -> Agent | None:
+        if Agent is None:
+            return None
+        return Agent(
+            name="finder_answerer",
+            model=self.model_name,
+            model_settings=ModelSettings(temperature=0.0) if ModelSettings is not None else None,
+            instructions=(
+                "Answer the question using only the provided context. "
+                "Do not use outside knowledge. "
+                "If context is insufficient, answer conservatively and explain what is grounded versus missing. "
+                "Return JSON only with keys answer, confidence, quality_notes."
+            ),
+            output_type=str,
+        )
+
+    def _answer_openai(
+        self,
+        question: Question,
+        context_mode: str,
+        context_bundle: dict[str, Any],
+    ) -> OpenAIAnswerBundle:
+        prompt = json.dumps(
+            {
+                "question": question.question,
+                "target_profile": question.target_profile,
+                "intent_id": question.intent_id,
+                "focus_slots": list(question.focus_slots),
+                "required_relations": list(question.required_relations),
+                "required_entity_types": list(question.required_entity_types),
+                "answer_policy": {
+                    "use_only_provided_context": True,
+                    "same_prompt_across_baselines": True,
+                    "be_conservative_when_evidence_is_missing": True,
+                },
+                "context_mode": context_mode,
+                "context_text": self._serialize_context(question, context_mode, context_bundle),
+            },
+            ensure_ascii=False,
+        )
+        result = Runner.run_sync(
+            self.agent,
+            prompt,
+            run_config=RunConfig(
+                model=self.model_name,
+                tracing_disabled=True,
+                workflow_name="FinDER answer generation",
+            )
+            if RunConfig is not None
+            else None,
+        )
+        payload = self._parse_model_json(result.final_output_as(str))
+        quality_notes = payload.get("quality_notes", [])
+        if isinstance(quality_notes, str):
+            quality_notes = [quality_notes]
+        elif not isinstance(quality_notes, list):
+            quality_notes = [str(quality_notes)]
+        return OpenAIAnswerBundle(
+            answer=str(payload.get("answer", "")).strip(),
+            confidence=self._coerce_confidence(payload.get("confidence", 0.4)),
+            quality_notes=[str(item) for item in quality_notes if str(item).strip()],
+        )
+
+    def _parse_model_json(self, raw: str) -> dict[str, Any]:
+        try:
+            return json.loads(raw)
+        except json.JSONDecodeError:
+            match = re.search(r"\{.*\}", raw, flags=re.DOTALL)
+            if not match:
+                raise
+            return json.loads(match.group(0))
+
+    def _coerce_confidence(self, value: Any) -> float:
+        if isinstance(value, (int, float)):
+            numeric = float(value)
+        else:
+            normalized = str(value).strip().lower()
+            if normalized in {"high", "very high"}:
+                return 0.85
+            if normalized in {"medium", "moderate"}:
+                return 0.6
+            if normalized in {"low", "very low"}:
+                return 0.3
+            match = re.search(r"\d+(?:\.\d+)?", normalized)
+            if not match:
+                return 0.4
+            numeric = float(match.group(0))
+        if numeric > 1.0 and numeric <= 100.0:
+            numeric /= 100.0
+        return round(min(max(numeric, 0.0), 1.0), 3)
+
+    def _serialize_context(
+        self,
+        question: Question,
+        context_mode: str,
+        context_bundle: dict[str, Any],
+    ) -> str:
+        if context_mode == "question_only":
+            sections = [
+                "[Question]",
+                question.question.strip(),
+                "",
+                "[Context Mode]",
+                "question_only",
+                "",
+                "[Available Context]",
+                "No supporting evidence beyond the question text.",
+            ]
+            return self._truncate_context("\n".join(sections))
+
+        if context_mode == "reference_only":
+            sentences = [
+                str(item).strip()
+                for item in context_bundle.get("reference_sentences", [])
+                if str(item).strip()
+            ][: self.reference_sentence_limit]
+            sections = [
+                "[Question]",
+                question.question.strip(),
+                "",
+                "[Context Mode]",
+                "reference_only",
+                "",
+                "[Reference Sentences]",
+            ]
+            if not sentences:
+                sections.append("- None")
+            else:
+                sections.extend(f"- {sentence}" for sentence in sentences)
+            return self._truncate_context("\n".join(sections))
+
+        triples = list(context_bundle.get("triples", []))[: self.graph_triple_limit]
+        snippets: list[str] = []
+        sections = [
+            "[Question]",
+            question.question.strip(),
+            "",
+            "[Context Mode]",
+            "graph_evidence_bundle",
+            "",
+            "[Intent]",
+            context_bundle.get("intent_id", question.intent_id),
+            "",
+            "[Entities]",
+        ]
+        entity_lines: set[str] = set()
+        for triple in triples:
+            entity_lines.add(f"- {triple['source_name']} ({triple['source_type']})")
+            entity_lines.add(f"- {triple['target_name']} ({triple['target_type']})")
+        sections.extend(sorted(entity_lines) or ["- None"])
+        sections.extend(["", "[Triples]"])
+        if not triples:
+            sections.append("- None")
+        else:
+            for triple in triples:
+                sections.append(
+                    "- "
+                    + f"{triple['source_name']} ({triple['source_type']}) "
+                    + f"--{triple['relation_type']}--> "
+                    + f"{triple['target_name']} ({triple['target_type']}) "
+                    + f"[confidence={triple['confidence']}]"
+                )
+                for snippet in triple.get("provenance_snippets", [])[: self.graph_snippet_limit]:
+                    cleaned = str(snippet).strip()
+                    if cleaned:
+                        snippets.append(cleaned)
+        sections.extend(["", "[Provenance Snippets]"])
+        if not snippets:
+            sections.append("- None")
+        else:
+            sections.extend(f"- {item}" for item in snippets[: self.graph_snippet_limit])
+        sections.extend(["", "[Missing Slots]"])
+        missing_slots = [str(item) for item in context_bundle.get("missing_slots", []) if str(item).strip()]
+        sections.extend([f"- {item}" for item in missing_slots] or ["- None"])
+        return self._truncate_context("\n".join(sections))
+
+    def _truncate_context(self, text: str) -> str:
+        normalized = re.sub(r"\n{3,}", "\n\n", text).strip()
+        if len(normalized) <= self.context_char_budget:
+            return normalized
+        clipped = normalized[: self.context_char_budget].rstrip()
+        if " " in clipped:
+            clipped = clipped.rsplit(" ", 1)[0]
+        return clipped + "\n\n[Truncated]\nContext truncated to the shared answer-context budget."
+
+
 class EvidenceRetriever:
     sentence_splitter = re.compile(r"(?<=[.!?])\s+(?=[A-Z0-9])")
 
@@ -608,6 +874,7 @@ class EvidenceRetriever:
         nodes: dict[str, GraphNode] | None = None,
         edges: list[GraphEdge] | None = None,
         quality_aware: bool = False,
+        limit: int = 2,
     ) -> list[str]:
         sentences: list[str] = []
         for reference in example.references:
@@ -635,7 +902,7 @@ class EvidenceRetriever:
             key=lambda sentence: self._sentence_score(sentence, question_tokens, edge_terms),
             reverse=True,
         )
-        return ranked[:2]
+        return ranked[: max(1, limit)]
 
     def _sentence_score(self, sentence: str, question_tokens: set[str], edge_terms: set[str]) -> tuple[int, int, int]:
         normalized = self._normalize(sentence)
@@ -653,6 +920,14 @@ class FinDERExperimentRunner:
         self.config = config
         self.profile_agent = FinDERProfileAgent(mode=config.agent_mode, model_name=config.model_name)
         self.extraction_agent = FinDERExtractionAgent(mode=config.agent_mode, model_name=config.model_name)
+        self.answer_agent = FinDERAnswerAgent(
+            mode=config.agent_mode,
+            model_name=config.model_name,
+            context_char_budget=config.answer_context_char_budget,
+            reference_sentence_limit=config.answer_reference_sentence_limit,
+            graph_triple_limit=config.answer_graph_triple_limit,
+            graph_snippet_limit=config.answer_graph_snippet_limit,
+        )
         self.fallback_profile_agent = FinDERProfileAgent(mode="heuristic", model_name=config.model_name)
         self.fallback_extraction_agent = FinDERExtractionAgent(mode="heuristic", model_name=config.model_name)
         self.linker = EntityLinker()
@@ -867,6 +1142,14 @@ class FinDERExperimentRunner:
             task_type,
             "--model-name",
             self.config.model_name,
+            "--answer-context-char-budget",
+            str(self.config.answer_context_char_budget),
+            "--answer-reference-sentence-limit",
+            str(self.config.answer_reference_sentence_limit),
+            "--answer-graph-triple-limit",
+            str(self.config.answer_graph_triple_limit),
+            "--answer-graph-snippet-limit",
+            str(self.config.answer_graph_snippet_limit),
         ]
         try:
             completed = subprocess.run(
@@ -1500,6 +1783,98 @@ class FinDERExperimentRunner:
         dedup_relations = list(dict.fromkeys(relations))
         return GoldExtraction(entities=dedup_entities, relations=dedup_relations)
 
+    def _answer_with_agent_or_fallback(
+        self,
+        example: FinDERExample,
+        question: Question,
+        profile_used: str,
+        context_mode: str,
+        context_bundle: dict[str, Any],
+        fallback_answer: str,
+        fallback_confidence: float,
+        quality_notes: list[str],
+        selected_edge_ids: list[str],
+    ) -> AnswerResult:
+        evidence_bundle = dict(context_bundle)
+        evidence_bundle.setdefault("mode", context_mode)
+        evidence_bundle["context_mode"] = context_mode
+        evidence_bundle.setdefault("intent_id", question.intent_id)
+        evidence_bundle.setdefault("focus_slots", list(question.focus_slots))
+        evidence_bundle["answer_mode"] = self.config.answer_mode
+        evidence_bundle["serialized_context_text"] = self.answer_agent._serialize_context(
+            question,
+            context_mode,
+            context_bundle,
+        )
+
+        if self.config.answer_mode == "heuristic_synthesis":
+            evidence_bundle["answer_generation_mode"] = "heuristic_synthesis_baseline"
+            return AnswerResult(
+                question_id=example.example_id,
+                answer=fallback_answer,
+                confidence=fallback_confidence,
+                profile_used=profile_used,
+                selected_edge_ids=selected_edge_ids,
+                quality_notes=list(quality_notes),
+                evidence_bundle=evidence_bundle,
+            )
+
+        if self.config.agent_mode != "openai":
+            evidence_bundle["answer_generation_mode"] = "heuristic_local"
+            return AnswerResult(
+                question_id=example.example_id,
+                answer=fallback_answer,
+                confidence=fallback_confidence,
+                profile_used=profile_used,
+                selected_edge_ids=selected_edge_ids,
+                quality_notes=list(quality_notes),
+                evidence_bundle=evidence_bundle,
+            )
+
+        result = self._invoke_openai_worker(
+            "answer",
+            {
+                "example_id": example.example_id,
+                "example": asdict(example),
+                "context_mode": context_mode,
+                "context_bundle": context_bundle,
+            },
+        )
+        if result.get("status") == "ok" and str(result.get("answer", "")).strip():
+            agent_notes = result.get("quality_notes", [])
+            if isinstance(agent_notes, str):
+                agent_notes = [agent_notes]
+            elif not isinstance(agent_notes, list):
+                agent_notes = [str(agent_notes)]
+            agent_notes = [str(item) for item in agent_notes if str(item).strip()]
+            answer_confidence = float(result.get("confidence", fallback_confidence))
+            evidence_bundle["answer_generation_mode"] = "openai_answer_agent"
+            evidence_bundle["answer_agent_confidence"] = round(answer_confidence, 3)
+            if agent_notes:
+                evidence_bundle["answer_agent_quality_notes"] = agent_notes
+            return AnswerResult(
+                question_id=example.example_id,
+                answer=str(result["answer"]).strip(),
+                confidence=round(answer_confidence, 3),
+                profile_used=profile_used,
+                selected_edge_ids=selected_edge_ids,
+                quality_notes=list(quality_notes) + agent_notes,
+                evidence_bundle=evidence_bundle,
+            )
+
+        fallback_reason = result.get("error", "missing worker result")
+        evidence_bundle["answer_generation_mode"] = "heuristic_answer_fallback"
+        evidence_bundle["answer_fallback_reason"] = fallback_reason
+        return AnswerResult(
+            question_id=example.example_id,
+            answer=fallback_answer,
+            confidence=fallback_confidence,
+            profile_used=profile_used,
+            selected_edge_ids=selected_edge_ids,
+            quality_notes=list(quality_notes) + [f"Answer agent fallback used: {fallback_reason}"],
+            evidence_bundle=evidence_bundle,
+        )
+
     def _graph_answer(
         self,
         example: FinDERExample,
@@ -1541,14 +1916,16 @@ class FinDERExperimentRunner:
         if record:
             confidence *= max(0.25, record.support_score)
 
-        return AnswerResult(
-            question_id=example.example_id,
-            answer=answer_text,
-            confidence=round(min(confidence, 0.92), 3),
+        return self._answer_with_agent_or_fallback(
+            example=example,
+            question=question,
             profile_used=question.target_profile,
-            selected_edge_ids=[edge.edge_id for edge in supporting_edges],
+            context_mode="graph_evidence_bundle",
+            context_bundle=evidence_bundle,
+            fallback_answer=answer_text,
+            fallback_confidence=round(min(confidence, 0.92), 3),
             quality_notes=quality_notes,
-            evidence_bundle=evidence_bundle,
+            selected_edge_ids=[edge.edge_id for edge in supporting_edges],
         )
 
     def _annotate_answer_deltas(self, baselines: dict[str, Any]) -> None:
@@ -1578,30 +1955,42 @@ class FinDERExperimentRunner:
         return matrix
 
     def _question_only_answer(self, example: FinDERExample) -> AnswerResult:
-        return AnswerResult(
-            question_id=example.example_id,
-            answer="Insufficient context to answer without supporting reference evidence.",
-            confidence=0.12,
+        question = example.to_question()
+        return self._answer_with_agent_or_fallback(
+            example=example,
+            question=question,
             profile_used="question_only",
-            selected_edge_ids=[],
+            context_mode="question_only",
+            context_bundle={
+                "mode": "question_only",
+                "question_text_only": True,
+            },
+            fallback_answer="Insufficient context to answer without supporting reference evidence.",
+            fallback_confidence=0.12,
             quality_notes=["Answer generated from the question text only."],
-            evidence_bundle={"mode": "question_only"},
+            selected_edge_ids=[],
         )
 
     def _reference_only_answer(self, example: FinDERExample) -> AnswerResult:
-        selected = self.retriever.select_reference_sentences(example)
+        selected = self.retriever.select_reference_sentences(
+            example,
+            limit=self.config.answer_reference_sentence_limit,
+        )
+        question = example.to_question()
         answer_text = " ".join(selected) if selected else self._fallback_answer(example)
-        return AnswerResult(
-            question_id=example.example_id,
-            answer=answer_text,
-            confidence=0.35,
+        return self._answer_with_agent_or_fallback(
+            example=example,
+            question=question,
             profile_used="reference_only",
-            selected_edge_ids=[],
-            quality_notes=["Answer generated from reference text without graph structure."],
-            evidence_bundle={
+            context_mode="reference_only",
+            context_bundle={
                 "mode": "reference_only",
                 "reference_sentences": selected,
             },
+            fallback_answer=answer_text,
+            fallback_confidence=0.35,
+            quality_notes=["Answer generated from reference text without graph structure."],
+            selected_edge_ids=[],
         )
 
     def _fallback_answer(self, example: FinDERExample) -> str:
@@ -1619,6 +2008,7 @@ class FinDERExperimentRunner:
             quality_notes=[f"Runtime exception fallback: {type(exc).__name__}: {exc}"],
             evidence_bundle={
                 "mode": "runtime_error_fallback",
+                "answer_generation_mode": "runtime_error_fallback",
                 "error": f"{type(exc).__name__}: {exc}",
             },
         )
@@ -1731,6 +2121,7 @@ class FinDERExperimentRunner:
                         source.name,
                         target.name,
                         edge.relation_type,
+                        limit=self.config.answer_graph_snippet_limit,
                     ),
                 }
             )
@@ -2065,6 +2456,36 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--model-name", default="gpt-4.1-mini")
     parser.add_argument("--persist-graph", action="store_true")
     parser.add_argument("--max-references", type=int, default=2)
+    parser.add_argument(
+        "--answer-mode",
+        choices=("shared_agent", "heuristic_synthesis"),
+        default="shared_agent",
+        help="Use the shared answer agent across baselines or the legacy code-based synthesis path.",
+    )
+    parser.add_argument(
+        "--answer-context-char-budget",
+        type=int,
+        default=2200,
+        help="Shared context budget for answer generation across question, reference, and graph baselines.",
+    )
+    parser.add_argument(
+        "--answer-reference-sentence-limit",
+        type=int,
+        default=4,
+        help="Maximum number of reference sentences serialized into the shared answer context.",
+    )
+    parser.add_argument(
+        "--answer-graph-triple-limit",
+        type=int,
+        default=5,
+        help="Maximum number of graph triples serialized into the shared answer context.",
+    )
+    parser.add_argument(
+        "--answer-graph-snippet-limit",
+        type=int,
+        default=3,
+        help="Maximum number of provenance snippets serialized into the shared answer context.",
+    )
     parser.add_argument("--openai-max-workers", type=int, default=4)
     parser.add_argument("--openai-call-timeout-seconds", type=int, default=90)
     parser.add_argument("--checkpoint-every-examples", type=int, default=10)
@@ -2095,6 +2516,11 @@ def run_from_args(args: argparse.Namespace) -> dict[str, Any]:
         model_name=args.model_name,
         persist_graph=args.persist_graph,
         max_references=args.max_references,
+        answer_mode=args.answer_mode,
+        answer_context_char_budget=args.answer_context_char_budget,
+        answer_reference_sentence_limit=args.answer_reference_sentence_limit,
+        answer_graph_triple_limit=args.answer_graph_triple_limit,
+        answer_graph_snippet_limit=args.answer_graph_snippet_limit,
         openai_max_workers=args.openai_max_workers,
         openai_call_timeout_seconds=args.openai_call_timeout_seconds,
         checkpoint_every_examples=args.checkpoint_every_examples,

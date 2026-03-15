@@ -328,11 +328,17 @@ def _artifact_schema_conformance(payload: dict[str, Any]) -> float | None:
 def _artifact_any_fallback_or_error(payload: dict[str, Any]) -> float | None:
     extraction = payload.get("extraction") or {}
     extraction_mode = (extraction.get("metadata") or {}).get("mode")
-    evidence_mode = ((payload.get("answer") or {}).get("evidence_bundle") or {}).get("mode")
+    answer_bundle = ((payload.get("answer") or {}).get("evidence_bundle") or {})
+    evidence_mode = answer_bundle.get("mode")
+    answer_generation_mode = answer_bundle.get("answer_generation_mode")
     rationale = ((payload.get("profile_decision") or {}).get("ontology_rationale") or "")
     if payload.get("error"):
         return 1.0
     if extraction_mode == "heuristic_fallback":
+        return 1.0
+    if answer_generation_mode == "heuristic_answer_fallback":
+        return 1.0
+    if answer_generation_mode == "runtime_error_fallback":
         return 1.0
     if evidence_mode == "runtime_error_fallback":
         return 1.0

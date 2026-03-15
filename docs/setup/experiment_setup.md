@@ -70,8 +70,15 @@ The immediate roles are:
 
 - profile selection agent
 - extraction agent
+- answer generation agent
 - normalization judge
 - evaluation or critique agent
+
+For answer-quality comparison, keep the answer agent fixed across baselines and
+change only the provided context. Serialize graph evidence as structured text
+with stable sections such as entities, triples, provenance snippets, and
+missing slots, and enforce the same context budget for reference-only and graph
+contexts.
 
 The `OPENAI_API_KEY` is expected to be passed in through `--env-file ../.env` when running Compose in this workspace.
 

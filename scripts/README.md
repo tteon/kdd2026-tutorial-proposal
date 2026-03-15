@@ -14,6 +14,8 @@ Active experiment scripts:
   Computes graph-structure and schema-conformance analysis.
 - `build_proposal_metrics_report.py`
   Produces proposal-ready metrics with mean, 95% CI, and category breakdown.
+- `build_submission_assets.py`
+  Produces submission-facing `Figure 1`, `Chart 1`, and `Table 1` assets.
 - `export_finder_run_results.py`
   Exports a run into JSON/CSV snapshots.
 - `print_finder_run_status.py`
@@ -28,3 +30,4 @@ Recommended operator flow:
 3. `run_finder_experiment.py`
 4. `evaluate_manual_gold_subset.py`
 5. `build_proposal_metrics_report.py`
+6. `build_submission_assets.py`

@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="720" viewBox="0 0 1360 720">
+<rect width="100%" height="100%" fill="#fbfaf7"/>
+<text x="40" y="46" font-family="Helvetica, Arial, sans-serif" font-size="28" fill="#102a43">Figure 1. Minimal Ontology-Guided Finance Graph Pipeline</text>
+<text x="40" y="74" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#52606d">One shared answer agent is used across baselines; only the evidence source changes.</text>
+<rect x="50" y="140" width="160" height="78" rx="12" fill="#f8f5ef" stroke="#cbd2d9" stroke-width="2"/>
+<text x="130.0" y="168" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#102a43">FinDER</text>
+<text x="130.0" y="186" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#102a43">references</text>
+<rect x="250" y="140" width="150" height="78" rx="12" fill="#ffffff" stroke="#cbd2d9" stroke-width="2"/>
+<text x="325.0" y="168" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#102a43">Profile</text>
+<text x="325.0" y="186" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#102a43">selection</text>
+<rect x="440" y="140" width="200" height="78" rx="12" fill="#ffffff" stroke="#cbd2d9" stroke-width="2"/>
+<text x="540.0" y="168" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#102a43">Ontology-constrained</text>
+<text x="540.0" y="186" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#102a43">extraction</text>
+<rect x="680" y="140" width="180" height="78" rx="12" fill="#ffffff" stroke="#cbd2d9" stroke-width="2"/>
+<text x="770.0" y="168" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#102a43">Entity linking</text>
+<text x="770.0" y="186" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#102a43">and graph build</text>
+<rect x="900" y="140" width="210" height="78" rx="12" fill="#ffffff" stroke="#cbd2d9" stroke-width="2"/>
+<text x="1005.0" y="168" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#102a43">Intent-aware query</text>
+<text x="1005.0" y="186" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#102a43">support analysis</text>
+<rect x="1150" y="132" width="170" height="94" rx="12" fill="#eef7f3" stroke="#cbd2d9" stroke-width="2"/>
+<text x="1235.0" y="160" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#102a43">Evidence bundle</text>
+<text x="1235.0" y="178" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#102a43">entities | triples |</text>
+<text x="1235.0" y="196" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#102a43">snippets | missing slots</text>
+<line x1="210" y1="179" x2="250" y2="179" stroke="#1f6f8b" stroke-width="4"/>
+<polygon points="250,179 238,173 238,185" fill="#1f6f8b"/>
+<line x1="400" y1="179" x2="440" y2="179" stroke="#1f6f8b" stroke-width="4"/>
+<polygon points="440,179 428,173 428,185" fill="#1f6f8b"/>
+<line x1="640" y1="179" x2="680" y2="179" stroke="#1f6f8b" stroke-width="4"/>
+<polygon points="680,179 668,173 668,185" fill="#1f6f8b"/>
+<line x1="860" y1="179" x2="900" y2="179" stroke="#1f6f8b" stroke-width="4"/>
+<polygon points="900,179 888,173 888,185" fill="#1f6f8b"/>
+<line x1="1110" y1="179" x2="1150" y2="179" stroke="#1f6f8b" stroke-width="4"/>
+<polygon points="1150,179 1138,173 1138,185" fill="#1f6f8b"/>
+<text x="52" y="285" font-family="Helvetica, Arial, sans-serif" font-size="18" fill="#102a43">Baseline comparison under a shared answer agent</text>
+<rect x="90" y="330" width="170" height="68" rx="12" fill="#f8f5ef" stroke="#cbd2d9" stroke-width="2"/>
+<text x="175.0" y="358" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#102a43">Question only</text>
+<rect x="320" y="330" width="190" height="68" rx="12" fill="#eef4f8" stroke="#cbd2d9" stroke-width="2"/>
+<text x="415.0" y="358" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#102a43">Reference text only</text>
+<rect x="590" y="330" width="210" height="68" rx="12" fill="#eef7f3" stroke="#cbd2d9" stroke-width="2"/>
+<text x="695.0" y="358" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#102a43">Graph evidence bundle</text>
+<rect x="900" y="318" width="170" height="92" rx="12" fill="#ffffff" stroke="#cbd2d9" stroke-width="2"/>
+<text x="985.0" y="346" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#102a43">Shared answer</text>
+<text x="985.0" y="364" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#102a43">agent</text>
+<rect x="1150" y="318" width="170" height="92" rx="12" fill="#ffffff" stroke="#cbd2d9" stroke-width="2"/>
+<text x="1235.0" y="346" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#102a43">FinDER answer</text>
+<text x="1235.0" y="364" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#102a43">evaluation</text>
+<line x1="260" y1="364" x2="320" y2="364" stroke="#1f6f8b" stroke-width="4"/>
+<polygon points="320,364 308,358 308,370" fill="#1f6f8b"/>
+<line x1="510" y1="364" x2="590" y2="364" stroke="#1f6f8b" stroke-width="4"/>
+<polygon points="590,364 578,358 578,370" fill="#1f6f8b"/>
+<line x1="800" y1="364" x2="900" y2="364" stroke="#1f6f8b" stroke-width="4"/>
+<polygon points="900,364 888,358 888,370" fill="#1f6f8b"/>
+<line x1="1070" y1="364" x2="1150" y2="364" stroke="#1f6f8b" stroke-width="4"/>
+<polygon points="1150,364 1138,358 1138,370" fill="#1f6f8b"/>
+<line x1="1235" y1="226" x2="1235" y2="318" stroke="#2a9d8f" stroke-width="4"/>
+<polygon points="1235,318 1229,306 1241,306" fill="#2a9d8f"/>
+<text x="60" y="550" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#52606d">Primary graph ablation: Graph -> Graph+Profile -> Graph+Constraint -> Full</text>
+<text x="60" y="580" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#52606d">Auxiliary text baselines are retained for interpretation but not emphasized in the main graph comparison.</text>
+<text x="60" y="610" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#52606d">Evaluation compares generated answers against FinDER ground-truth answers.</text>
+</svg>

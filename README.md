@@ -58,6 +58,11 @@ The tutorial is organized around four measurable quantities:
 These four quantities are enough to support the end-to-end argument without introducing unnecessary
 system complexity.
 
+For downstream answer comparison, the scaffold now uses one shared answer agent
+with a fixed prompt, fixed model, and shared context budget across
+`question_only`, `reference_only`, and graph baselines. The legacy code-based
+answer synthesis path remains available only as a supplemental mode.
+
 ## Intended Audience
 
 - Researchers working on LLMs, knowledge graphs, GraphRAG, agent memory, or information extraction
@@ -100,18 +105,43 @@ The repository now includes a reproducible Docker Compose stack with separate se
 
 Key files:
 
+- `AGENTS.md`
 - `docker-compose.yml`
 - `docker/python/Dockerfile`
+- `.github/workflows/ci.yml`
 - `docs/README.md`
+- `docs/setup/experiment_setup.md`
+- `docs/reviews/pre_submission_pipeline_experiment_review_20260315.md`
 - `scripts/README.md`
 - `scripts/filter_finder_top3.py`
 - `scripts/init_metadata_db.py`
 - `scripts/run_finder_experiment.py`
 - `scripts/evaluate_manual_gold_subset.py`
 - `scripts/build_proposal_metrics_report.py`
+- `scripts/build_submission_assets.py`
 - `tutorials/finance_graph_pipeline/data/finder_manual_gold_subset.json`
 
 Generated run outputs under `data/` and `exports/` are kept local and are intentionally excluded from the repository push.
+
+Documentation layout:
+
+- `docs/setup/`
+  Experiment setup and stack notes
+- `docs/reviews/`
+  Review notes and submission checks
+- `docs/analysis/`
+  Failure analysis
+- `proposal/`
+  Submission-facing drafts
+
+Reproducibility conventions:
+
+- `AGENTS.md`
+  Repo-wide implementation and experiment rules
+- `tutorials/finance_graph_pipeline/AGENTS.md`
+  Finance-pipeline-specific experimental guidance
+- `.github/workflows/ci.yml`
+  Lightweight syntax and sample-evaluation checks
 
 ## Tutorial Outline
 
@@ -167,5 +197,5 @@ python3 tutorials/finance_graph_pipeline/framework/demo.py
 ## Notes
 
 - The runnable code is a companion scaffold, not the center of the lecture tutorial.
-- The current implementation is heuristic-driven so the full workflow can be inspected without external model dependencies.
+- The current implementation supports both heuristic mode and OpenAI Agents SDK mode for profile selection, extraction, and answering.
 - The implementation deliberately excludes non-essential components so the tutorial can focus on the minimal causal chain from ontology choice to answer quality.

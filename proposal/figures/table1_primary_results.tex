@@ -1,0 +1,15 @@
+\begin{table*}[t]
+\centering
+\caption{Graph-centered shared answer-agent results on the FinDER primary run (50 examples per category). Auxiliary text baselines are omitted here to keep the main table focused on ontology-guided graph ablations.}
+\label{tab:primary-graph-results}
+\begin{tabular}{lcccccc}
+\toprule
+Baseline & Answer Quality & $\Delta$ vs Graph & Profile Acc. & Extraction F1 & Coverage & Schema Conf. \\
+\midrule
+Graph & 0.175 [0.165, 0.184] & 0.000 & -- & 0.126 [0.103, 0.151] & 0.000 [0.000, 0.000] & 0.000 [0.000, 0.000] \\
+Graph+Profile & 0.175 [0.166, 0.184] & 0.000 & 0.900 [0.847, 0.940] & 0.104 [0.082, 0.130] & 0.000 [0.000, 0.000] & 0.000 [0.000, 0.000] \\
+Graph+Constraint & 0.318 [0.297, 0.338] & 0.143 & 0.900 [0.847, 0.940] & 0.083 [0.065, 0.104] & 0.589 [0.537, 0.638] & 1.000 [1.000, 1.000] \\
+Full & 0.321 [0.300, 0.341] & 0.146 & 0.900 [0.847, 0.940] & 0.083 [0.065, 0.104] & 0.589 [0.537, 0.638] & 1.000 [1.000, 1.000] \\
+\bottomrule
+\end{tabular}
+\end{table*}

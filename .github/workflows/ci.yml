@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+
+jobs:
+  python-smoke:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install minimal dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r docker/python/requirements.txt
+
+      - name: Compile Python sources
+        run: |
+          python -m py_compile scripts/*.py
+          python -m py_compile tutorials/finance_graph_pipeline/framework/*.py
+
+      - name: Run sample evaluator
+        run: |
+          python tutorials/finance_graph_pipeline/framework/evaluate.py > /tmp/finance_evaluate.json
+
+      - name: Smoke-check CLI entrypoints
+        run: |
+          python scripts/run_finder_experiment.py --help > /tmp/run_finder_help.txt
+          python scripts/evaluate_manual_gold_subset.py --help > /tmp/manual_gold_help.txt
+          python scripts/build_proposal_metrics_report.py --help > /tmp/proposal_report_help.txt
+          python scripts/build_submission_assets.py --help > /tmp/submission_assets_help.txt
+          python scripts/export_intermediate_run_snapshot.py --help > /tmp/intermediate_snapshot_help.txt

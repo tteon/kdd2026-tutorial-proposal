@@ -1,5 +1,9 @@
 # AGENTS.md
 
+This file extends the repo-level rules in `../../AGENTS.md`.
+When the two conflict, preserve the stricter rule for experimental
+interpretability and reproducibility.
+
 ## Purpose
 
 This tutorial package exists to support one minimal tutorial claim:
@@ -80,6 +84,19 @@ The implementation must make the following four quantities measurable:
 4. `answer_quality_delta`
 
 These are the only primary metrics that matter for the tutorial claim.
+
+Supporting metrics that should remain available when possible:
+
+- `required_answer_slot_coverage_manual`
+- `preferred_answer_evidence_hit_rate`
+- `relation_schema_conformance_rate`
+- `fallback_error_rate`
+
+Primary reported runs should include:
+
+- overall results
+- category breakdown
+- confidence intervals when available
 
 ## Current Bottlenecks To Address Next
 
@@ -213,6 +230,72 @@ If runtime is high, use staged evaluation:
 Do not claim cross-category comparisons from an unbalanced sample.
 
 The goal is controlled causal comparison, not full-distribution estimation.
+
+## Shared Answer-Agent Rule
+
+For the main experiment, answer generation must use a shared answer-agent
+design.
+
+Keep fixed across baselines:
+
+- answer instruction
+- answer model
+- answer output schema
+- answer context budget
+
+Only change:
+
+- question-only context
+- reference-only context
+- graph evidence bundle context
+
+The legacy heuristic answer synthesis path may remain available only as a
+supplemental answer-layer comparison.
+
+Do not present heuristic answer synthesis as the main result unless explicitly
+requested.
+
+## Prompt And Evidence Discipline
+
+Graph evidence should be serialized in a stable, inspectable format.
+
+Preferred sections:
+
+- `intent`
+- `entities`
+- `triples`
+- `provenance snippets`
+- `missing slots`
+
+If these sections change, update:
+
+- answer serialization code
+- docs under `docs/reviews/`
+- any proposal-facing figures or tables that explain the pipeline
+
+## Reporting And Interpretation Rules
+
+Main tutorial-facing artifacts should make these comparisons easy to inspect:
+
+- naive graph vs ontology-guided graph
+- profile selection only vs profile + constrained extraction
+- constrained graph vs full pipeline
+
+`reference_only_baseline` should usually remain auxiliary in interpretation:
+
+- keep it in the experiment
+- use it to interpret residual grounding gaps
+- do not let it dominate the main graph-ontology narrative
+
+## Artifact Expectations
+
+Whenever a new main run is used for proposal-facing reporting, regenerate:
+
+- proposal metrics report
+- readable snapshot
+- proposal figures (`Figure 1`, `Chart 1`, `Table 1`) if affected
+
+Do not hand-edit numerical assets if they can be regenerated from scripts.
 
 ## Expected Artifacts
 
