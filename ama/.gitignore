@@ -1,0 +1,21 @@
+
+# Dolt database files (added by bd init)
+.dolt/
+*.db
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Environment
+.env
+
+# Experiment outputs
+artifacts/
+data/neo4j/
+data/fibo_cache/
+
+# OS
+.DS_Store

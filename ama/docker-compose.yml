@@ -1,0 +1,20 @@
+services:
+  # DozerDB (Neo4j-compatible) — single instance, two logical databases:
+  #   finderrdf  (RDF-as-property-graph: :RDFNode / :RDF_PREDICATE)
+  #   finderlpg  (native LPG: :<Label> / :<TYPE>)
+  dozerdb:
+    image: graphstack/dozerdb:5.26.3.0
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:-ama-experiment-2026}
+      NEO4J_PLUGINS: '["apoc"]'
+    volumes:
+      - ./data/neo4j/data:/data
+      - ./data/neo4j/logs:/logs
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:7474"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
